@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div style="background-image: url('https://mdbootstrap.com/img/Photos/Others/images/76.jpg');">
 
     <Header :user-name="this.voterName"></Header>
 
@@ -30,9 +30,27 @@
           <div class="jumbotron">
             <h2>Welcome to Online Elections!</h2>
             <p>Cast your vote from home.</p>
-            <button class="btn btn-primary" @click="voteNow">
-              Vote Now
-            </button>
+            <div class="buttons">
+              <a href="/#/voters/view_candidates">
+                <button class="btn btn-secondary" @click="viewCandidates">
+                  View Candidates
+                </button>
+              </a>
+
+            <a href="/#/voters/vote_now">
+              <button class="btn btn-primary" @click="voteNow">
+                Vote Now
+              </button>
+            </a>
+
+            </div>
+            <p><br></p>Or
+           <a href="/#/register_candidate">
+             <button class="btn btn-success" @click="signUp">
+               Sign up as Candidate
+             </button>
+           </a>
+
           </div>
 
           <h2>Announcements</h2>
@@ -57,18 +75,20 @@
         </ul>
       </div>
     </div>
-
+    <Footer/>
   </div>
 
 </template>
 <script>
 
 import Header from '../layouts/Header.vue'
+import Footer from '../layouts/Footer.vue'
 
 export default {
   name: 'VoterHome',
   components: {
-    'Header': Header
+    'Header': Header,
+    'Footer': Footer
   },
   data () {
     return {
@@ -113,8 +133,14 @@ export default {
     learnMore () {
       // learn more logic
     },
+    viewCandidates () {
+      // view candidate logic
+    },
     voteNow () {
       // vote now logic
+    },
+    signUp () {
+      // Sign up as candidate logic
     }
   }
 }
@@ -122,4 +148,12 @@ export default {
 
 <style scoped>
 /* CSS styling */
+.buttons {
+  display: flex;
+}
+
+.buttons button {
+  margin-right: 10px;
+}
+
 </style>
