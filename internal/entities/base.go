@@ -9,6 +9,7 @@ type DefaultModel struct {
 	ID        uint64         `json:"id" gorm:"type:INT(11) AUTO_INCREMENT;primarykey"`
 	CreatedAt time.Time      `json:"created_at" gorm:"type:TIMESTAMP DEFAULT CURRENT_TIMESTAMP;index"`
 	UpdatedAt time.Time      `json:"updated_at,omitempty" gorm:"type:TIMESTAMP NULL"`
+	IsDeleted bool `json:"is_deleted,omitempty" gorm:"default:false"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"type:TIMESTAMP NULL DEFAULT NULL" swaggerignore:"true"`
 }
 
