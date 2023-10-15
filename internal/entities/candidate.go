@@ -7,3 +7,7 @@ type Candidate struct {
 	Party     string
 	Patrimony string `json:"patrimony,omitempty" gorm:"size:512; default:NULL"` // for Candidate only
 }
+
+type CandidateDto struct {
+	Candidate
+}
