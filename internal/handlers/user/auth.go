@@ -11,22 +11,22 @@ import (
 
 func (s *Handler) Register(c *gin.Context) {
 	//TODO implement me
-	var userDto entities.UserDto
-	err := c.ShouldBindJSON(&userDto)
+	var voterDto entities.VoterDto
+	err := c.ShouldBindJSON(&voterDto)
 	if err != nil {
 		s.logger.Error(fmt.Sprintf("[User_Handler_Register] Invalid request body, err: %v", err))
 		_ = c.Error(err)
 		return
 	}
-	userDto.Password = utils.HashPassword(userDto.Password)
-	if !userDto.IsValid() {
-		s.logger.Error(fmt.Sprintf("[User_Handler_Register] Invalid dto value, dto: %v", userDto))
+	voterDto.Password = utils.HashPassword(voterDto.Password)
+	if !voterDto.IsValid() {
+		s.logger.Error(fmt.Sprintf("[User_Handler_Register] Invalid dto value, dto: %v", voterDto))
 		_ = c.Error(errors.New("Invalid object value"))
 		return
 	}
-	iEntity, _ := userDto.ToEntity()
-	entity := iEntity.(*entities.User)
-	err = s.repo.Database().User().Create(entity)
+	iEntity, _ := voterDto.ToEntity()
+	entity := iEntity.(*entities.Voter)
+	err = s.repo.Database().Voter().Create(entity)
 	if err != nil {
 		s.logger.Error(fmt.Sprintf("[User_Handler_Register] Insert into db fail, err: %v", err))
 		_ = c.Error(err)
@@ -34,24 +34,17 @@ func (s *Handler) Register(c *gin.Context) {
 	}
 	utils.SetResponse(c, map[string]interface{}{
 		"success": true,
+		"data":    entity,
 	})
 }
 
-func (s *Handler) Login(c *gin.Context) {
-	var userDto entities.User
-	err := c.ShouldBindJSON(&userDto)
+func (s *Handler) RegisterCandidate(c *gin.Context) {
+	var candidateDto entities.CandidateDto
+	err := c.ShouldBindJSON(&candidateDto)
 	if err != nil {
-		s.logger.Error(fmt.Sprintf("[User_Handler_Login] Invalid request body, err: %v", err))
-		_ = c.Error(err)
+		s.logger.Error(fmt.Sprintf("[User_Handler_RegisterCandidate] Invalid request body, err: %v", err))
+		_ = c.Error(errors.New("Invalid object value"))
 		return
 	}
-	userDto.Password = utils.HashPassword(userDto.Password)
-	s.logger.Info(fmt.Sprintf("%v", userDto))
 
-}
-
-func (s *Handler) Logout(c *gin.Context) {
-	utils.SetResponse(c, map[string]interface{}{
-		"message": "pong",
-	})
 }

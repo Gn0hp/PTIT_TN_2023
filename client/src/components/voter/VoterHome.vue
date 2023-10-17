@@ -134,6 +134,7 @@ export default {
       // learn more logic
     },
     viewCandidates () {
+      console.log()
       // view candidate logic
     },
     voteNow () {

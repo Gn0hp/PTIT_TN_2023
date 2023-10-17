@@ -45,9 +45,9 @@
 </template>
 
 <script>
-import axios from 'axios'
 import {RequestParams} from '../../config/request'
 import Footer from '../layouts/Footer.vue'
+import auth, { AxiosInstance } from '../../config/auth'
 
 export default {
   name: 'AdminAuthentication',
@@ -62,11 +62,20 @@ export default {
       }
     }
   },
+  mixins: [auth],
   methods: {
     async onSubmitLoginForm () {
-      await axios.post(RequestParams.host + RequestParams.path.login, this.loginForm).then(data => {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${data}`
-      }).catch()
+      await AxiosInstance.post(RequestParams.host + RequestParams.path.adminLogin, this.loginForm).then(data => {
+        // axios.defaults.headers.common['Authorization'] = `Bearer ${data.data.data.access_token}`
+        AxiosInstance.defaults.headers.common['Authorization'] = `Bearer ${data.data.data.access_token}`
+        console.log(data.data.data.access_token)
+        if (data.data.data.data.id) {
+          this.$router.push('/admin/home')
+        }
+      }).catch(err => {
+        console.log(err)
+        throw (err)
+      })
     }
   }
 }

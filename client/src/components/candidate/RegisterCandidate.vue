@@ -152,8 +152,8 @@
 import Header from '../layouts/Header'
 import PlaceSelection from '../utils/PlaceSelect'
 import Footer from '../layouts/Footer'
-import axios from 'axios'
 import {RequestParams} from '../../config/request'
+import { AxiosInstance } from '../../config/auth'
 export default {
   name: 'RegisterCandidate',
   components: {Footer, PlaceSelection, Header},
@@ -185,7 +185,7 @@ export default {
       this.signUpForm.cccd_date = new Date(this.signUpForm.cccd_date).toISOString()
       console.log(this.signUpForm)
       try {
-        const res = await axios.post(RequestParams.host + RequestParams.path.register, this.signUpForm)
+        const res = await AxiosInstance.post(RequestParams.host + RequestParams.path.register, this.signUpForm)
         console.log(res)
       } catch (e) {
         console.error(e)

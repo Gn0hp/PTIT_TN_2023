@@ -10,6 +10,8 @@ import CandidateDetails from '../components/voter/CandidateDetails.vue'
 import RegisterCandidate from '../components/candidate/RegisterCandidate'
 import VoteNow from '../components/voter/VoteNow'
 import Profile from '../components/Profile'
+import VerifyUser from '../components/admin/VerifyUser.vue'
+import UserManagement from '../components/admin/UserManagement.vue'
 
 Vue.use(Router)
 
@@ -69,6 +71,16 @@ export default new Router({
       path: '/admin/home',
       name: 'AdminHome',
       component: AdminHome
+    },
+    {
+      path: '/admin/verify',
+      name: 'VerifyUSer',
+      component: VerifyUser
+    },
+    {
+      path: '/admin/user-management',
+      name: 'UserManagement',
+      component: UserManagement
     },
     {
       path: '/me/profile',

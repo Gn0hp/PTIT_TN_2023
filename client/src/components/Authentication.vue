@@ -187,7 +187,7 @@
             </div>
             <div class="text-center text-lg-start mt-4 pt-2">
               <button type="submit" class="btn btn-primary btn-lg"
-                      style="padding-left: 2.5rem; padding-right: 2.5rem;">Register
+                      style="padding-left: 2.5rem; padding-right: 2.5rem;" @click="showModal">Register
               </button>
               <p class="small fw-bold mt-2 pt-1 mb-0">Already have account?
                 <button @click="handleSigninEvent"
@@ -196,6 +196,14 @@
               </p>
             </div>
           </form>
+          <b-modal ref="myModalRef" hide-footer title="Identity Verification"
+                   centered hide-backdrop
+                   header-bg-variant="dark"
+                   header-text-variant="light" @hide="null">
+            <div class="d-block text-center">
+              <h3>The user should wait for Identity verification, we will notify you until verified</h3>
+            </div>
+          </b-modal>
         </div>
       </div>
     </div>
@@ -204,10 +212,10 @@
 </template>
 
 <script>
-import axios from 'axios'
 import {RequestParams} from '../config/request'
 import PlaceSelection from './utils/PlaceSelect.vue'
 import Footer from './layouts/Footer.vue'
+import auth, { AxiosInstance } from '../config/auth'
 
 export default {
   name: 'Authentication',
@@ -237,6 +245,7 @@ export default {
       }
     }
   },
+  mixins: [auth],
   methods: {
     handleSigninEvent () {
       this.showSignin = true
@@ -246,23 +255,45 @@ export default {
       this.showSignin = false
       this.showSignup = true
     },
+    showModal () {
+      this.$refs.myModalRef.show()
+    },
     handlePlaceSelected (place) {
       this.signUpForm.address = `${place.ward.Name} - ${place.district.Name} - ${place.city.Name}`
     },
     async onSubmitLoginForm () {
-      await axios.post(RequestParams.host + RequestParams.path.login, this.loginForm).then(data => {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${data}`
-      }).catch()
+      if (this.loginForm.cccd_id !== '') {
+        console.log('1: ', this.loginForm)
+        await AxiosInstance.post(RequestParams.host + RequestParams.path.login, this.loginForm).then(data => {
+          AxiosInstance.defaults.headers.common['Authorization'] = `Bearer ${data}`
+          console.log(data)
+          if (data.data.data.data.id) {
+            if (data.data.data.type === 'voter') {
+              this.$router.push({
+                path: '/voters/home',
+                params: data.data.data
+              })
+            } else if (data.data.data.type === 'candidate') {
+              this.$router.push({
+                path: '/candidates/home',
+                params: data.data.data
+              })
+            }
+          }
+        }).catch()
+      }
     },
     async onSubmitRegisterForm () {
-      this.signUpForm.date_of_birth = new Date(this.signUpForm.date_of_birth).toISOString()
-      this.signUpForm.cccd_date = new Date(this.signUpForm.cccd_date).toISOString()
-      console.log(this.signUpForm)
-      try {
-        const res = await axios.post(RequestParams.host + RequestParams.path.register, this.signUpForm)
-        console.log(res)
-      } catch (e) {
-        console.error(e)
+      if (this.signUpForm.cccd_id !== '') {
+        this.signUpForm.date_of_birth = new Date(this.signUpForm.date_of_birth).toISOString()
+        this.signUpForm.cccd_date = new Date(this.signUpForm.cccd_date).toISOString()
+        console.log(this.signUpForm)
+        try {
+          const res = await AxiosInstance.post(RequestParams.host + RequestParams.path.register, this.signUpForm)
+          console.log(res)
+        } catch (e) {
+          console.error(e)
+        }
       }
     }
   }
