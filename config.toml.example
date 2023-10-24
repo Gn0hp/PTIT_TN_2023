@@ -1,0 +1,30 @@
+APPENV="dev"
+
+[app]
+httpaddr=8400
+storage="database"
+
+[logger]
+format="logfmt" # [json | logfmt]
+level="info" #  [trace |debug | info | warn | error | fatal | panic]
+no_color=false
+full_timestamp=true
+
+[database]
+host="localhost"
+port=3306
+user="dev"
+pass=""
+name=""
+
+[redis]
+host="localhost"
+port=6379
+
+[rabbit_mq]
+user="guest"
+password="guest"
+host="localhost"
+port="5672"
+
+

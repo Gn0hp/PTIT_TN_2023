@@ -55,10 +55,15 @@
 </template>
 
 <script>
+import {AxiosInstance} from '../../config/auth'
+
 export default {
   name: 'Header',
   props: {
     userName: String
+  },
+  created () {
+    this.userName = this.$globalData.userGlobal.full_name
   },
   methods: {
     viewProfile () {
@@ -66,6 +71,10 @@ export default {
     },
     logout () {
       // logout logic
+      this.$globalData.userGlobal = null
+      this.$globalData.accessToken = null
+      AxiosInstance.defaults.headers.common['Authorization'] = null
+      this.$router.push('/')
     }
   }
 }

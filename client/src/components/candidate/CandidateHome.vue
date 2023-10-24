@@ -8,7 +8,7 @@
 
       <h1>Candidate Dashboard</h1>
 
-      <div class="jumbotron">
+      <div class="jumbotron" v-if="isElecting">
         <h2>Status</h2>
         <p>Current votes: {{ votes }}</p>
       </div>
@@ -90,11 +90,14 @@ export default {
     Footer,
     'Header': Header
   },
+  created () {
+  },
   data () {
     return {
       selectedPost: null,
+      isElecting: true,
       postModalShow: false,
-      votes: 100, // sample data
+      votes: 0, // sample data
       newPost: {
         title: null,
         content: null

@@ -25,7 +25,9 @@
                      class="form-control form-control-lg"
                      placeholder="Enter password"/>
             </div>
-
+            <div v-if="error" class="alert alert-danger">
+              {{ error }}
+            </div>
             <div class="d-flex justify-content-between align-items-center">
               <!-- Checkbox -->
               <div class="form-check mb-0">
@@ -216,6 +218,7 @@ import {RequestParams} from '../config/request'
 import PlaceSelection from './utils/PlaceSelect.vue'
 import Footer from './layouts/Footer.vue'
 import auth, { AxiosInstance } from '../config/auth'
+import Vue from 'vue'
 
 export default {
   name: 'Authentication',
@@ -225,6 +228,7 @@ export default {
   },
   data () {
     return {
+      error: null,
       showSignin: true,
       showSignup: false,
       loginForm: {
@@ -263,16 +267,19 @@ export default {
     },
     async onSubmitLoginForm () {
       if (this.loginForm.cccd_id !== '') {
-        console.log('1: ', this.loginForm)
         await AxiosInstance.post(RequestParams.host + RequestParams.path.login, this.loginForm).then(data => {
-          AxiosInstance.defaults.headers.common['Authorization'] = `Bearer ${data}`
-          console.log(data)
+          AxiosInstance.defaults.headers.common['Authorization'] = `Bearer ${data.data.data.access_token}`
           if (data.data.data.data.id) {
             if (data.data.data.type === 'voter') {
               this.$router.push({
                 path: '/voters/home',
                 params: data.data.data
               })
+              Vue.prototype.$globalData = {
+                userGlobal: data.data.data.data,
+                accessToken: data.data.data.access_token
+              }
+              console.log('123', Vue.prototype.$globalData)
             } else if (data.data.data.type === 'candidate') {
               this.$router.push({
                 path: '/candidates/home',
@@ -280,7 +287,10 @@ export default {
               })
             }
           }
-        }).catch()
+        }).catch(err => {
+          console.log(err)
+          this.handleError(err.response.data.error)
+        })
       }
     },
     async onSubmitRegisterForm () {
@@ -295,6 +305,9 @@ export default {
           console.error(e)
         }
       }
+    },
+    handleError (err) {
+      this.error = err
     }
   }
 }

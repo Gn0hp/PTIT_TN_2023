@@ -2,7 +2,7 @@
 
   <div style="background-image: url('https://mdbootstrap.com/img/Photos/Others/images/76.jpg');">
 
-    <Header :user-name="this.voterName"></Header>
+    <Header />
 
     <div class="container mt-5">
 
@@ -92,7 +92,6 @@ export default {
   },
   data () {
     return {
-      voterName: 'John Doe',
       electionDate: 'Nov 8, 2022',
       votingLocations: 'List of locations...',
       announcements: [

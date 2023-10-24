@@ -34,7 +34,7 @@ func NewConnection(c Config, logger logur.LoggerFacade, ctx context.Context) (Mq
 	}, nil
 }
 func (i impl) Send(ch *amqp091.Channel, body RabbitRequest) {
-	q, err := ch.QueueDeclare("rabbit_test_q", false, false, false, false, nil)
+	q, err := ch.QueueDeclare("rabbit_ptit_tn_prj", false, false, false, false, nil)
 	if err != nil {
 		logrus.Errorf("")
 	}

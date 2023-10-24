@@ -14,4 +14,4 @@ const (
 	IssuerIdClaimKey      = "jti"
 )
 
-const AccessTokenExpiry = time.Minute * 20
+const AccessTokenExpiry = time.Minute * 30

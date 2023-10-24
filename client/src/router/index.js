@@ -12,6 +12,7 @@ import VoteNow from '../components/voter/VoteNow'
 import Profile from '../components/Profile'
 import VerifyUser from '../components/admin/VerifyUser.vue'
 import UserManagement from '../components/admin/UserManagement.vue'
+import CreateElection from '../components/admin/CreateElection.vue'
 
 Vue.use(Router)
 
@@ -76,6 +77,11 @@ export default new Router({
       path: '/admin/verify',
       name: 'VerifyUSer',
       component: VerifyUser
+    },
+    {
+      path: '/admin/create_election',
+      name: 'CreateElection',
+      component: CreateElection
     },
     {
       path: '/admin/user-management',

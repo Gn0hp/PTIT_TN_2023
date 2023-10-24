@@ -7,6 +7,7 @@ import (
 	log "PTIT_TN/pkg/logger"
 	"encoding/json"
 	"fmt"
+
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 	"logur.dev/logur"
@@ -23,7 +24,14 @@ func main() {
 	migrateService.Init()
 
 	table := []interface{}{
-		entities.User{},
+		entities.Voter{},
+		entities.Post{},
+		entities.Election{},
+		entities.ElectionResult{},
+		entities.ElectionCandidate{},
+		entities.Candidate{}, // manual delete cccd_id unique in dbms
+		entities.Ballot{},
+		entities.Admin{},
 	}
 	err := migrateService.gormDb.AutoMigrate(table...)
 	if err != nil {

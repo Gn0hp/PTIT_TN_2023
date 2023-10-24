@@ -48,6 +48,7 @@
 import {RequestParams} from '../../config/request'
 import Footer from '../layouts/Footer.vue'
 import auth, { AxiosInstance } from '../../config/auth'
+import Vue from 'vue'
 
 export default {
   name: 'AdminAuthentication',
@@ -68,7 +69,12 @@ export default {
       await AxiosInstance.post(RequestParams.host + RequestParams.path.adminLogin, this.loginForm).then(data => {
         // axios.defaults.headers.common['Authorization'] = `Bearer ${data.data.data.access_token}`
         AxiosInstance.defaults.headers.common['Authorization'] = `Bearer ${data.data.data.access_token}`
-        console.log(data.data.data.access_token)
+        Vue.prototype.$globalData = {
+          userGlobal: data.data.data.data,
+          accessToken: data.data.data.access_token
+        }
+        Vue.prototype.$globalData.userGlobal.full_name = data.data.data.data.username
+        console.log(Vue.prototype.$globalData)
         if (data.data.data.data.id) {
           this.$router.push('/admin/home')
         }

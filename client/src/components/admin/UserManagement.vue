@@ -17,6 +17,7 @@
 
         <template v-slot:cell(actions)="data">
           <button class="btn btn-primary" @click="editVoter(data.item.id)">Edit</button>
+          <button class="btn btn-dark" @click="deleteCandidate(data.item.id)">Block</button>
           <button class="btn btn-danger" @click="deleteVoter(data.item.id)">Delete</button>
         </template>
 
@@ -31,6 +32,7 @@
 
         <template v-slot:cell(actions)="data">
           <button class="btn btn-primary" @click="editCandidate(data.item.id)">Edit</button>
+          <button class="btn btn-dark" @click="deleteCandidate(data.item.id)">Block</button>
           <button class="btn btn-danger" @click="deleteCandidate(data.item.id)">Delete</button>
         </template>
 

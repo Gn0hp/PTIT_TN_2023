@@ -15,7 +15,7 @@ func (i impl) FindAll(c context.Context, params query_params.GetUserParams, lock
 	}
 	var res []*entities.User
 
-	query := i.db.Gdb().WithContext(c).Model(entities.User{})
+	query := i.db.Gdb().WithContext(c).Model(&entities.User{})
 	query = filterUser(query, params)
 
 	err := query.Find(&res).Error
@@ -29,15 +29,12 @@ func (i impl) FindAll(c context.Context, params query_params.GetUserParams, lock
 	return res, nil
 }
 
-func (i impl) FindById(id int) (*entities.User, error) {
-	panic("implement me")
-}
 func (i impl) FindByCccd(c context.Context, cccd string) (*entities.User, error) {
 	user := &entities.User{}
 
 	query := i.db.Gdb().
 		WithContext(c).
-		Model(entities.User{}).
+		Model(&entities.User{}).
 		Where("cccd_id = ?", cccd)
 	err := query.First(user).Error
 	if err != nil {

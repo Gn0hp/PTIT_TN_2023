@@ -3,8 +3,9 @@ package entities
 type Ballot struct {
 	DefaultModel
 
-	VoterId uint64 `json:"voter_id"`
-	CandidateId uint64 `json:"candidate_id"`
+	VoterId  uint64 `json:"voter_id"`
+	ResultId uint64 `json:"result_id"`
+	Note     string `json:"note"`
 }
 
 type BallotDto struct {

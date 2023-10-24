@@ -15,7 +15,7 @@ const (
 
 type UserDetails struct {
 	UserID   int64
-	Username string
+	Username string // Instead of CCCD ID
 }
 
 // setUserContext sets user details in context

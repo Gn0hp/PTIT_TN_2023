@@ -66,6 +66,7 @@ func run() error {
 			logger,
 			database,
 			redisCache,
+			mqService,
 			appEnv == "dev"),
 	}
 	serverErr := make(chan error, 1) // Create a channel to receive server error

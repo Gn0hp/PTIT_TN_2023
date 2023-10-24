@@ -19,7 +19,7 @@ type Configuration struct {
 	App      appConfig  // App configuration
 	Log      log.Config // Log logger config
 	Database mysql.Config
-	RabbitMq rabbitMQ.Config
+	RabbitMq rabbitMQ.Config `mapstructure:"rabbit_mq"`
 }
 
 func (c appConfig) Validate() error {

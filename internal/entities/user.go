@@ -5,6 +5,14 @@ import (
 	"time"
 )
 
+const (
+	REGISTER_STATUS_PENDING  = "PENDING"  // chờ duyệt
+	REGISTER_STATUS_ACTIVE   = "ACTIVE"   // đã duyệt
+	REGISTER_STATUS_REJECTED = "REJECTED" // bị từ chối
+	REGISTER_STATUS_BLOCKED  = "BLOCKED"  // bị khóa
+
+)
+
 type User struct {
 	DefaultModel
 	FullName    string    `json:"full_name" gorm:"size:128; NOT NULL"`
@@ -17,7 +25,7 @@ type User struct {
 	Email       string    `json:"email" gorm:"size:128; NOT NULL"`
 	Phone       string    `json:"phone" gorm:"size:64; NOT NULL"`
 	Password    string    `json:"password" gorm:"size:256; NOT NULL"`
-	Status      string    `json:"status" gorm:"size:16; NOT NULL"`
+	Status      string    `json:"status" gorm:"size:16; NOT NULL"` // ["pending", "active", "rejected", "inactive", "blocked"]
 	Note        string    `json:"note,omitempty" gorm:"size:512; default:NULL"`
 }
 

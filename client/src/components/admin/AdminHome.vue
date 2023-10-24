@@ -22,7 +22,7 @@
           Elections
         </div>
         <div class="card-body">
-          <button class="btn btn-primary">Create New Election</button>
+          <button class="btn btn-primary" @click="createElection">Create New Election</button>
           <table class="table">
             <thead>
             <tr>
@@ -106,6 +106,9 @@ export default {
       } catch (error) {
         console.log(error)
       }
+    },
+    async createElection () {
+      await this.$router.push('/admin/create_election')
     }
   }
 }
