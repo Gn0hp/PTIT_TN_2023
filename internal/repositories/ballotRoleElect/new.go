@@ -9,6 +9,7 @@ import (
 
 type Repo interface {
 	Create(c *gin.Context, v *entities.BallotRoleElect) error
+	CreateInBatches(c *gin.Context, v []*entities.BallotRoleElect) error
 	FindAll(c *gin.Context) ([]*entities.BallotRoleElect, error)
 	FindById(c *gin.Context, id uint64) (*entities.BallotRoleElect, error)
 	FindByOption(c *gin.Context, option entities.BallotRoleElect) ([]*entities.BallotRoleElect, error)
@@ -22,6 +23,9 @@ type impl struct {
 
 func (i impl) Create(c *gin.Context, v *entities.BallotRoleElect) error {
 	return i.db.Gdb().WithContext(c).Model(&entities.BallotRoleElect{}).Create(v).Error
+}
+func (i impl) CreateInBatches(c *gin.Context, v []*entities.BallotRoleElect) error {
+	return i.db.Gdb().WithContext(c).Model(&entities.BallotRoleElect{}).CreateInBatches(v, 20).Error
 }
 
 func New(logger logur.LoggerFacade, db *db.GormDB) Repo {

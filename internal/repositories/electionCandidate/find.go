@@ -38,17 +38,14 @@ func (i impl) FindById(c *gin.Context, id uint64) (*entities.ElectionCandidate, 
 	}
 	return result, nil
 }
-func (i impl) FindByElectionId(c *gin.Context, electionId uint64) ([]*entities.ElectionCandidate, error) {
-	var result []*entities.ElectionCandidate
+func (i impl) FindByElectionId(c *gin.Context, electionId uint64) (*entities.ElectionCandidate, error) {
+	var result *entities.ElectionCandidate
 	query := i.db.Gdb().
 		WithContext(c).
 		Model(&entities.ElectionCandidate{}).
 		Where("election_id = ?", electionId)
-	err := query.Find(&result).Error
+	err := query.First(&result).Error
 	if err != nil {
-		if err.Error() == gorm.ErrRecordNotFound.Error() {
-			return []*entities.ElectionCandidate{}, nil
-		}
 		i.logger.Error(fmt.Sprintf("[ElectionCandidate Repo] FindByElectionId Error: %s", err))
 		return nil, err
 	}

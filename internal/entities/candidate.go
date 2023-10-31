@@ -14,8 +14,8 @@ type Candidate struct {
 	User
 
 	CccdID          string `json:"cccd_id" gorm:"size:32; NOT NULL;"`
-	CandidateStatus string `json:"candidate_status" gorm:"size:16; NOT NULL"` // ["pending", "verified", "rejected"]
-	Party           string
+	CandidateStatus string `json:"candidate_status" gorm:"size:16; NOT NULL"` // ["active", "inactive", "rejected", blocked]
+	Party           string `json:"party"`
 	Patrimony       string `json:"patrimony,omitempty" gorm:"size:512; default:NULL"` // for Candidate only
 }
 

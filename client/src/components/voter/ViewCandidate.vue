@@ -1,6 +1,6 @@
 <template>
   <div style="background-image: url('https://mdbootstrap.com/img/Photos/Others/images/76.jpg');">
-    <Header :user-name="this.voterName"></Header>
+    <Header />
     <div class="container mt-5" style="height: 80vh;">
 
       <h1>Candidates</h1>
@@ -9,7 +9,7 @@
 
         <h3>{{ group.role }}</h3>
 
-        <b-table striped hover :items="group.candidates"
+        <b-table striped hover :items="group.candidates" :fields="fields"
                  select-mode="single" ref="selectableTable"
                  selectable @row-selected="onRowSelected"
         >
@@ -34,6 +34,8 @@
 <script>
 import Header from '../layouts/Header.vue'
 import Footer from '../layouts/Footer.vue'
+import {RequestParams} from '../../config/request'
+import {AxiosInstance} from '../../config/auth'
 
 export default {
   name: 'ViewCandidate',
@@ -41,24 +43,49 @@ export default {
     'Header': Header,
     'Footer': Footer
   },
+  async created () {
+    await AxiosInstance.get(RequestParams.host + RequestParams.path.view_candidate, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      },
+      params: {
+        election_id: localStorage.getItem('electionId')
+      }
+    })
+      .then(response => {
+        const mapCandidates = response.data.data.data.map_candidate // or supported for other map
+        for (const [key, val] of Object.entries(mapCandidates)) {
+          const tmp = {
+            role: key,
+            candidates: val
+          }
+          this.candidates.push(tmp)
+        }
+
+        console.log(this.candidates)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  },
   data () {
     return {
-      voterName: 'John Doe',
+      fields: ['id', 'full_name', 'party'],
       candidates: [
-        {
-          role: 'President',
-          candidates: [
-            {id: 1, name: 'John Doe', party: 'Democrat'},
-            {id: 2, name: 'Jane Smith', party: 'Republican'}
-          ]
-        },
-        {
-          role: 'Vice President',
-          candidates: [
-            {id: 1, name: 'John Doe', party: 'Democrat'},
-            {id: 2, name: 'Jane Smith', party: 'Republican'}
-          ]
-        }
+        // {
+        //   role: 'President',
+        //   candidates: [
+        //     {id: 1, name: 'John Doe', party: 'Democrat'},
+        //     {id: 2, name: 'Jane Smith', party: 'Republican'}
+        //   ]
+        // },
+        // {
+        //   role: 'Vice President',
+        //   candidates: [
+        //     {id: 1, name: 'John Doe', party: 'Democrat'},
+        //     {id: 2, name: 'Jane Smith', party: 'Republican'}
+        //   ]
+        // }
       ]
     }
   },

@@ -11,3 +11,7 @@ type Ballot struct {
 type BallotDto struct {
 	Ballot
 }
+
+func (b *BallotDto) ToEntity() (interface{}, error) {
+	return &b.Ballot, nil
+}

@@ -8,6 +8,7 @@ import (
 	"PTIT_TN/internal/repositories/election"
 	"PTIT_TN/internal/repositories/electionCandidate"
 	"PTIT_TN/internal/repositories/electionResult"
+	"PTIT_TN/internal/repositories/electionRole"
 	"PTIT_TN/internal/repositories/post"
 	"PTIT_TN/internal/repositories/roleElect"
 	"PTIT_TN/internal/repositories/user"
@@ -24,6 +25,7 @@ type DatabaseRepo interface {
 	Election() election.Repo
 	ElectionCandidate() electionCandidate.Repo
 	ElectionResult() electionResult.Repo
+	ElectionRole() electionRole.Repo
 	Post() post.Repo
 	RoleElect() roleElect.Repo
 	User() user.Repo
@@ -37,6 +39,7 @@ type dbImpl struct {
 	election          election.Repo
 	electionCandidate electionCandidate.Repo
 	electionResult    electionResult.Repo
+	electionRole      electionRole.Repo
 	roleElect         roleElect.Repo
 	post              post.Repo
 	user              user.Repo
@@ -81,12 +84,23 @@ func (d dbImpl) Admin() admin.Repo {
 func (d dbImpl) Election() election.Repo {
 	return d.election
 }
+func (d dbImpl) ElectionRole() electionRole.Repo {
+	return d.electionRole
+}
 
 func NewDatabaseRepo(logger logur.LoggerFacade, db *db.GormDB) DatabaseRepo {
 	return &dbImpl{
-		user:      user.New(logger, db),
-		voter:     voter.New(logger, db),
-		candidate: candidate.New(logger, db),
-		admin:     admin.New(logger, db),
+		admin:             admin.New(logger, db),
+		ballot:            ballot.New(logger, db),
+		ballotRoleElect:   ballotRoleElect.New(logger, db),
+		candidate:         candidate.New(logger, db),
+		election:          election.New(logger, db),
+		electionCandidate: electionCandidate.New(logger, db),
+		electionResult:    electionResult.New(logger, db),
+		electionRole:      electionRole.New(logger, db),
+		roleElect:         roleElect.New(logger, db),
+		post:              post.New(logger, db),
+		user:              user.New(logger, db),
+		voter:             voter.New(logger, db),
 	}
 }

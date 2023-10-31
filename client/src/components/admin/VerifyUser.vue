@@ -30,7 +30,7 @@
         {{ data.item.cccd_id }}
       </template>
       <template v-slot:cell(roleElect)="data">
-        {{ data.item.role_elect }}
+        {{ data.item.candidate_status }}
       </template>
       <template v-slot:cell(actions)="data">
         <button class="btn btn-primary" @click="verifyCandidate(data.item.id)">Verify</button>
@@ -49,6 +49,7 @@
 import { AxiosInstance } from '../../config/auth'
 import Footer from '../layouts/Footer.vue'
 import Header from '../layouts/Header.vue'
+import {RequestParams} from '../../config/request'
 
 export default {
   name: 'VerifyUser',
@@ -56,7 +57,7 @@ export default {
   data () {
     return {
       fields: ['id', 'name', 'cccd', 'status', 'actions'],
-      fieldsCandidate: ['id', 'name', 'cccd', 'roleElect', 'status', 'actions'],
+      fieldsCandidate: ['id', 'name', 'cccd', 'status', 'candidate_status', 'actions'],
       items: []
       // unverifiedVoters: [
       //   {
@@ -83,17 +84,29 @@ export default {
     console.log('axios111 ', AxiosInstance.defaults.headers.common)
   },
   methods: {
-    verifyVoter (id) {
-      // call API to verify
-      console.log(id)
+    async verifyVoter (id) {
+      await AxiosInstance.post(RequestParams.host + RequestParams.path.verify_voter, {id: id})
+        .then((response) => {
+          console.log(response)
+          this.items.voters = this.items.voters.filter((item) => item.id !== id)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
     },
     rejectVoter (id) {
       // call API to reject
       console.log(id)
     },
-    verifyCandidate (id) {
-      // call API to verify
-      console.log(id)
+    async verifyCandidate (id) {
+      await AxiosInstance.post(RequestParams.host + RequestParams.path.verify_candidate, {id: id})
+        .then((response) => {
+          console.log(response)
+          this.items.candidates = this.items.candidates.filter((item) => item.id !== id)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
     },
     rejectCandidate (id) {
       // call API to reject

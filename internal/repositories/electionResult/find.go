@@ -70,3 +70,16 @@ func (i impl) FindByOption(c *gin.Context, option entities.ElectionResult) ([]*e
 	}
 	return electionResults, nil
 }
+
+func (i impl) FindByElectionId(c *gin.Context, electionId uint64) (*entities.ElectionResult, error) {
+	var electionResults *entities.ElectionResult
+	tx := i.db.Gdb().WithContext(c).Raw("select * from ptit_tn.election_results er "+
+		"join ptit_tn.election_candidates ec on er.election_candidate_id = ec.id "+
+		"where ec.election_id = ?", electionId)
+	err := tx.Scan(&electionResults).Error
+	if err != nil {
+		i.logger.Error(fmt.Sprintf("[Election Role Repo] Find By Election Id Error: %v", err))
+		return nil, err
+	}
+	return electionResults, nil
+}

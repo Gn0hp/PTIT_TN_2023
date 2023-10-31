@@ -218,7 +218,6 @@ import {RequestParams} from '../config/request'
 import PlaceSelection from './utils/PlaceSelect.vue'
 import Footer from './layouts/Footer.vue'
 import auth, { AxiosInstance } from '../config/auth'
-import Vue from 'vue'
 
 export default {
   name: 'Authentication',
@@ -275,22 +274,30 @@ export default {
                 path: '/voters/home',
                 params: data.data.data
               })
-              Vue.prototype.$globalData = {
-                userGlobal: data.data.data.data,
-                accessToken: data.data.data.access_token
-              }
-              console.log('123', Vue.prototype.$globalData)
             } else if (data.data.data.type === 'candidate') {
               this.$router.push({
                 path: '/candidates/home',
                 params: data.data.data
               })
             }
+            localStorage.setItem('userGlobal', JSON.stringify(data.data.data.data))
+            localStorage.setItem('accessToken', data.data.data.access_token)
           }
-        }).catch(err => {
-          console.log(err)
-          this.handleError(err.response.data.error)
+        }).then(async () => {
+          await AxiosInstance.get(RequestParams.host + RequestParams.path.check_election,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+              }
+            }).then(data => {
+            localStorage.setItem('electionId', data.data.data.data.election_id)
+            localStorage.setItem('hasElection', data.data.data.data.has_election)
+          })
         })
+          .catch(err => {
+            console.log(err)
+            this.handleError(err.response.data.error)
+          })
       }
     },
     async onSubmitRegisterForm () {

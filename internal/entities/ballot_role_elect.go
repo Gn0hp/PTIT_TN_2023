@@ -10,3 +10,7 @@ type BallotRoleElect struct {
 type BallotRoleElectDto struct {
 	BallotRoleElect
 }
+
+func (e *BallotRoleElectDto) ToEntity() (interface{}, error) {
+	return &e.BallotRoleElect, nil
+}

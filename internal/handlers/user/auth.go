@@ -82,6 +82,10 @@ func (s *Handler) Login(c *gin.Context) {
 			s.logger.Error(fmt.Sprintf("[User_Login_Voter] Password not match"))
 			_ = c.Error(errors.New("incorrect password"))
 			return
+		} else if voterExisted.Status != entities.REGISTER_STATUS_ACTIVE {
+			s.logger.Error(fmt.Sprintf("[User_Login_Voter] User not active"))
+			_ = c.Error(errors.New("user not active"))
+			return
 		}
 		utils.SetResponse(c, map[string]interface{}{
 			"success": true,
@@ -96,6 +100,18 @@ func (s *Handler) Login(c *gin.Context) {
 		if !utils.CheckHashPassword(entity.Password, candidateExisted.Password) {
 			s.logger.Error(fmt.Sprintf("[User_Login_Candidate] Password not match"))
 			_ = c.Error(errors.New("incorrect password"))
+			return
+		}
+		if candidateExisted.CandidateStatus == entities.CANDIDATE_STATUS_PENDING || candidateExisted.CandidateStatus == entities.CANDIDATE_STATUS_INACTIVE || candidateExisted.CandidateStatus == entities.CANDIDATE_STATUS_REJECTED {
+			s.logger.Error(fmt.Sprintf("[User_Login_Candidate] Candidate not active"))
+			utils.SetResponse(c, map[string]interface{}{
+				"success": true,
+				"type":    "voter",
+				"access_token": auth.New().GenerateAccessToken(
+					voterExisted.CccdID,
+					fmt.Sprintf("%d", voterExisted.ID), c),
+				"data": voterExisted,
+			})
 			return
 		}
 		utils.SetResponse(c, map[string]interface{}{

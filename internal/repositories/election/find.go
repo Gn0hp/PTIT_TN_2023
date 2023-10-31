@@ -55,3 +55,21 @@ func (i impl) FindByOption(c *gin.Context, option entities.Election) ([]*entitie
 	}
 	return elections, nil
 }
+
+func (i impl) FindOpenElection(c *gin.Context) (*entities.Election, error) {
+	var election entities.Election
+	query := i.db.Gdb().
+		WithContext(c).
+		Model(&entities.Election{}).
+		Where("status = ?", entities.ELECTION_STATUS_REGISTERING).
+		Or("status = ?", entities.ELECTION_STATUS_OPENING)
+	err := query.First(&election).Error
+	if err != nil {
+		if err.Error() == gorm.ErrRecordNotFound.Error() {
+			return nil, nil
+		}
+		i.logger.Error(fmt.Sprintf("[Election Repo] Find Open Election failed, detail: %v", err))
+		return nil, err
+	}
+	return &election, nil
+}

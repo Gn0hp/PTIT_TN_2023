@@ -56,12 +56,12 @@ func (i impl) FindByCandidateId(c *gin.Context, candidateId uint64) ([]*entities
 	return roleElects, nil
 }
 
-func (i impl) FindByElectionCandidateId(c *gin.Context, electionCandidateId uint64) ([]*entities.RoleElect, error) {
+func (i impl) FindByElectionRoleId(c *gin.Context, electionRoleId uint64) ([]*entities.RoleElect, error) {
 	var roleElects []*entities.RoleElect
 	query := i.db.Gdb().
 		WithContext(c).
 		Model(&entities.RoleElect{}).
-		Where("election_candidate_id = ?", electionCandidateId)
+		Where("election_role_id = ?", electionRoleId)
 	err := query.Find(&roleElects).Error
 	if err != nil {
 		if err.Error() == gorm.ErrRecordNotFound.Error() {

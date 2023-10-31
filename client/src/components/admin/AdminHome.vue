@@ -15,6 +15,10 @@
           <button class="btn btn-primary" @click="verifyUser">Verify New User</button>
 
           <button class="btn btn-primary ml-2">User Management</button>
+
+          <button class="btn btn-primary ml-2" v-bind:class="{disabled: hasNoElection}">Election Result Stat</button>
+
+          <button class="btn btn-primary ml-2" v-bind:class="{disabled: hasNoElection}" @click="closeElectionRegister">Close Election Register</button>
         </div>
       </div>
       <div class="card" style="margin-top: 16px">
@@ -67,6 +71,7 @@ export default {
   },
   data () {
     return {
+      hasNoElection: true,
       candidates: [],
       users: [],
       elections: [
@@ -109,6 +114,9 @@ export default {
     },
     async createElection () {
       await this.$router.push('/admin/create_election')
+    },
+    async closeElectionRegister () {
+      // TODO: push blockchain
     }
   }
 }

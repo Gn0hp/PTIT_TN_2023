@@ -2,7 +2,9 @@ package routers
 
 import (
 	"PTIT_TN/internal/handlers/admin"
+	"PTIT_TN/internal/handlers/candidate"
 	election2 "PTIT_TN/internal/handlers/election"
+	"PTIT_TN/internal/handlers/electionRoles"
 	"PTIT_TN/internal/handlers/user"
 	"PTIT_TN/internal/handlers/voter"
 	"PTIT_TN/internal/repositories"
@@ -42,8 +44,10 @@ func New(logger logur.LoggerFacade, database *db.GormDB, redisDb *redis.Client, 
 	repo := repositories.New(logger, database, redisDb)
 	userHandler := user.New(logger, repo)
 	adminHandler := admin.New(logger, repo)
+	candidateHandller := candidate.New(logger, repo)
 	voterHandler := voter.New(logger, repo)
 	electionHandler := election2.New(logger, repo, mqService)
+	electionRoleHandler := electionRoles.New(logger, repo)
 
 	api := r.Group("/api/v1")
 
@@ -55,12 +59,26 @@ func New(logger logur.LoggerFacade, database *db.GormDB, redisDb *redis.Client, 
 	adminUrl := api.Group("/admin")
 	adminUrl.POST("/login", adminHandler.AdminLogin)
 	adminUrl.GET("/pending-users", adminHandler.GetPendingUserList)
+	adminUrl.POST("/verify-voter", adminHandler.VerifyVoter)
+	adminUrl.POST("/verify-candidate", adminHandler.VerifyCandidate)
 
 	voterUrl := api.Group("/voter")
 	voterUrl.POST("/vote", voterHandler.Vote) //TODO
+	voterUrl.POST("/register-candidate", voterHandler.RegisterCandidate)
+	voterUrl.GET("/view-candidate", voterHandler.ViewCandidate)
 
 	electionUrl := api.Group("/election")
+	electionUrl.GET("/check", electionHandler.CheckElection)
 	electionUrl.POST("/create", electionHandler.CreateElection) // TODO
+
+	electionRoleUrl := api.Group("/election-role")
+	electionRoleUrl.GET("/find-by-election-id", electionRoleHandler.FindRolesByElectionId)
+
+	candidateUrl := api.Group("/candidate")
+	candidateUrl.GET("/get-posts-by-candidate-id", candidateHandller.FindAllPost)
+	candidateUrl.POST("/post-create", candidateHandller.CreatePost)
+	candidateUrl.PATCH("/post-update", candidateHandller.UpdatePost)
+	candidateUrl.DELETE("/post-delete", candidateHandller.DeletePost)
 
 	return r
 }

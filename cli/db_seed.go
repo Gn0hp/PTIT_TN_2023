@@ -25,11 +25,14 @@ func main() {
 
 	table := []interface{}{
 		entities.Voter{},
+		entities.RoleElect{},
 		entities.Post{},
-		entities.Election{},
 		entities.ElectionResult{},
+		entities.ElectionRole{},
 		entities.ElectionCandidate{},
+		entities.Election{},
 		entities.Candidate{}, // manual delete cccd_id unique in dbms
+		entities.BallotRoleElect{},
 		entities.Ballot{},
 		entities.Admin{},
 	}

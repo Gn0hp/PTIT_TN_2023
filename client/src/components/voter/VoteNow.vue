@@ -9,22 +9,25 @@
 
         <h3>{{ group.role }}</h3>
 
-        <b-table striped hover :items="group.candidates"
+        <b-table :id="group.role" striped hover :items="group.candidates"
                  select-mode="single" ref="selectableTable"
-                 selectable @row-selected="onRowSelected"
+                 selectable @row-selected="onRowSelected($event, group.role)" :fields="fields"
         >
-          <template v-slot:cell(name)="data">
-            {{ data.item.name }}
-          </template>
-
-          <template v-slot:cell(party)="data">
-            {{ data.item.party }}
+          <template v-slot:cell(vote)="data">
+            <b-form-checkbox :checked="data.item.selected"
+                             v-model="data.item.selected"></b-form-checkbox>
           </template>
         </b-table>
 
       </div>
 
     </div>
+    <b-form @submit.prevent="onSubmitBallot">
+
+      <b-button type="reset" variant="danger" @click="onReset">Cancel</b-button>
+      <b-button type="submit" variant="primary">Submit</b-button>
+
+    </b-form>
     <b-modal v-if="selectedCandidate" @hide="selectedCandidate = null"
              v-model="candidateModalVisible"
              id="modal-candidate-info" centered hide-backdrop
@@ -32,7 +35,7 @@
              header-text-variant="light"
              footer-bg-variant="dark"
              body-bg-variant="warning"
-             :title="selectedCandidate.name">
+             :title="selectedCandidate.full_name">
       <p>{{ selectedCandidate.party }}</p>
     </b-modal>
     <Footer/>
@@ -42,6 +45,8 @@
 <script>
 import Header from '../layouts/Header.vue'
 import Footer from '../layouts/Footer.vue'
+import {AxiosInstance} from '../../config/auth'
+import {RequestParams} from '../../config/request'
 
 export default {
   name: 'VoteNow',
@@ -49,36 +54,91 @@ export default {
     Header,
     Footer
   },
+  async created () {
+    this.ballot.voter_id = JSON.parse(localStorage.getItem('userGlobal')).id
+    await AxiosInstance.get(RequestParams.host + RequestParams.path.view_candidate, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      },
+      params: {
+        election_id: localStorage.getItem('electionId')
+      }
+    })
+      .then(response => {
+        const mapCandidates = response.data.data.data.map_candidate // or supported for other map
+        for (const [key, val] of Object.entries(mapCandidates)) {
+          const tmp = {
+            role: key,
+            candidates: val
+          }
+          this.candidates.push(tmp)
+        }
+        this.candidates.map((item) => {
+          if (item.candidates != null) {
+            item.candidates.map((candidate) => {
+              candidate.selected = false
+            })
+          }
+        })
+        console.log(this.candidates)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  },
   data () {
     return {
+      fields: ['id', 'full_name', 'party', 'vote'],
+      candidates: [],
       selectedCandidate: null,
       candidateModalVisible: false,
-      candidates: [
-        {
-          role: 'President',
-          candidates: [
-            {id: 1, name: 'John Doe', party: 'Democrat'},
-            {id: 2, name: 'Jane Smith', party: 'Republican'}
-          ]
-        },
-        {
-          role: 'Vice President',
-          candidates: [
-            {id: 1, name: 'John Doe', party: 'Democrat'},
-            {id: 2, name: 'Jane Smith', party: 'Republican'}
-          ]
-        }
-      ]
+      ballot: {
+        voter_id: null,
+        role_elects: []
+      }
     }
   },
   methods: {
     showModal (candidate) {
       this.selectedCandidate = candidate
     },
-    onRowSelected (item) {
-      console.log(item[0])
+    async onRowSelected (item, tblId) {
+      console.log(item)
+      const tblSelected = this.candidates.find((item) => item.role === tblId)
+      tblSelected.candidates.map((candidate) => {
+        candidate.selected = false
+      })
+      item[0].selected = true
       this.showModal(item[0])
       this.candidateModalVisible = !this.candidateModalVisible
+    },
+    async onSubmitBallot () {
+      this.ballot.role_elects = this.candidates.flatMap((g) => {
+        return g.candidates.filter((c) => c.selected).map((c) => {
+          console.log('electionId: ', localStorage.getItem('electionId'))
+          return {
+            role_elect_id: c.reId,
+            candidate_id: c.id
+          }
+        })
+      })
+      this.ballot.election_id = parseInt(localStorage.getItem('electionId'))
+      console.log('ballot: ', this.ballot)
+      await AxiosInstance.post(RequestParams.host + RequestParams.path.vote, this.ballot, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      })
+        .then(response => {
+          console.log(response)
+          this.$router.push('/voters/home')
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    async onReset () {
+      await this.$router.push('/voters/home')
     }
   }
 }

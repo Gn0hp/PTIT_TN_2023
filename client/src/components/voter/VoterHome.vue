@@ -45,11 +45,9 @@
 
             </div>
             <p><br></p>Or
-           <a href="/#/register_candidate">
              <button class="btn btn-success" @click="signUp">
                Sign up as Candidate
              </button>
-           </a>
 
           </div>
 
@@ -140,6 +138,7 @@ export default {
       // vote now logic
     },
     signUp () {
+      this.$router.push('/register_candidate')
       // Sign up as candidate logic
     }
   }

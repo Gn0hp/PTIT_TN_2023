@@ -12,3 +12,7 @@ func (i impl) Create(c *gin.Context, v *entities.RoleElect) error {
 func (i impl) UpdateById(c *gin.Context, v *entities.RoleElect) error {
 	return i.db.Gdb().WithContext(c).Model(&entities.RoleElect{}).Where("id = ?", v.ID).Updates(v).Error
 }
+
+func (i impl) CreateInBatch(c *gin.Context, v []*entities.RoleElect) error {
+	return i.db.Gdb().WithContext(c).Model(&entities.RoleElect{}).CreateInBatches(v, len(v)).Error
+}

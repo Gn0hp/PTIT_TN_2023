@@ -1,5 +1,11 @@
 package entities
 
+const (
+	ELECTION_STATUS_REGISTERING = "REGISTERING"
+	ELECTION_STATUS_OPENING     = "OPENING"
+	ELECTION_STATUS_FINISHED    = "FINISHED"
+)
+
 type Election struct {
 	DefaultModel
 	ApiObjectId uint64 `json:"api_object_id"` // id of election on blockchain
@@ -16,9 +22,9 @@ type ElectionDto struct {
 	Election
 }
 
-func (e ElectionDto) IsValid() bool {
+func (e *ElectionDto) IsValid() bool {
 	return true
 }
-func (e ElectionDto) ToEntity() (interface{}, error) {
-	return e.Election, nil
+func (e *ElectionDto) ToEntity() (interface{}, error) {
+	return &e.Election, nil
 }

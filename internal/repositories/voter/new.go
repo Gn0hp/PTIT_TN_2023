@@ -15,6 +15,7 @@ type Repo interface {
 	FindById(c *gin.Context, id uint64) (*entities.Voter, error)
 	FindByCccd(c *gin.Context, cccd string) (*entities.Voter, error)
 	GetPendingVoters(c *gin.Context) ([]*entities.Voter, error)
+	Delete(c *gin.Context, id uint64) error
 }
 type impl struct {
 	logger logur.LoggerFacade

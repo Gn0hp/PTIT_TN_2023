@@ -9,3 +9,7 @@ type ElectionResult struct {
 type ElectionResultDto struct {
 	ElectionResult
 }
+
+func (e *ElectionResultDto) ToEntity() (interface{}, error) {
+	return &e.ElectionResult, nil
+}

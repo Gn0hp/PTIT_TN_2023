@@ -101,6 +101,7 @@ func skipTokenCheck(uri string) bool {
 		"/api/v1/auth/register",
 		"/api/v1/debug/pprof",
 		"/api/v1/admin/login",
+		"/api/v1/election/check",
 		"/swagger",
 	}
 	for _, s := range skipPath {

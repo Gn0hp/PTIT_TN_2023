@@ -109,7 +109,11 @@ func main() {
 			case "transfer_ownership":
 			case "renounce_ownership":
 			case "elections_mapping":
-				fmt.Printf("Data Election Mapping: %v", contract.ElectionsMapping(1))
+				res, err := contract.ElectionsMapping(1)
+				if err != nil {
+					fmt.Printf("Error: %v", err)
+				}
+				fmt.Printf(fmt.Sprintf("Data Election Mapping: %v", res))
 			case "election_to_result":
 			case "get_election_result":
 			case "is_voted":

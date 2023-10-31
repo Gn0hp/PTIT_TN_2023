@@ -14,6 +14,7 @@ type Repo interface {
 	FindById(c *gin.Context, id uint64) (*entities.ElectionResult, error)
 	FindByElectionCandidateId(c *gin.Context, electionCandidateId uint64) ([]*entities.ElectionResult, error)
 	FindByOption(c *gin.Context, option entities.ElectionResult) ([]*entities.ElectionResult, error)
+	FindByElectionId(c *gin.Context, electionId uint64) (*entities.ElectionResult, error)
 }
 type impl struct {
 	logger logur.LoggerFacade

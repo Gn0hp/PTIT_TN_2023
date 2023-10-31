@@ -63,7 +63,8 @@ export default {
     userName: String
   },
   created () {
-    this.userName = this.$globalData.userGlobal.full_name
+    const userGlobal = JSON.parse(localStorage.getItem('userGlobal'))
+    this.userName = userGlobal.full_name
   },
   methods: {
     viewProfile () {
@@ -71,8 +72,8 @@ export default {
     },
     logout () {
       // logout logic
-      this.$globalData.userGlobal = null
-      this.$globalData.accessToken = null
+      localStorage.removeItem('userGlobal')
+      localStorage.removeItem('accessToken')
       AxiosInstance.defaults.headers.common['Authorization'] = null
       this.$router.push('/')
     }

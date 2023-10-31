@@ -10,10 +10,13 @@ import (
 	"time"
 )
 
-type RabbitRequest struct{}
+type RabbitRequest struct {
+	Type string      `json:"type"`
+	Data interface{} `json:"data"`
+}
 type MqService interface {
 	GetConnection() *amqp091.Connection
-	Send(ch *amqp091.Channel, body RabbitRequest)
+	Send(body RabbitRequest)
 }
 type impl struct {
 	logger logur.LoggerFacade
@@ -33,7 +36,12 @@ func NewConnection(c Config, logger logur.LoggerFacade, ctx context.Context) (Mq
 		ctx:    ctx,
 	}, nil
 }
-func (i impl) Send(ch *amqp091.Channel, body RabbitRequest) {
+func (i impl) Send(body RabbitRequest) {
+	ch, err := i.conn.Channel()
+	if err != nil {
+		i.logger.Error(fmt.Sprintf("[Rabbit MQ Server] Error sending to service, detail: %v", err))
+		return
+	}
 	q, err := ch.QueueDeclare("rabbit_ptit_tn_prj", false, false, false, false, nil)
 	if err != nil {
 		logrus.Errorf("")
