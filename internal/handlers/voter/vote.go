@@ -3,6 +3,8 @@ package voter
 import (
 	"PTIT_TN/internal/entities"
 	"PTIT_TN/internal/repositories/candidate"
+	"PTIT_TN/pkg"
+	"PTIT_TN/pkg/rabbitMQ"
 	"PTIT_TN/pkg/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -32,6 +34,12 @@ func (h *Handler) Vote(c *gin.Context) {
 			Note:     time.Now().String(),
 		},
 	}
+	ballotExisted, _ := h.repo.Database().Ballot().FindByVoterId(c, req.VoterId)
+	if ballotExisted.ID != 0 {
+		h.logger.Error(fmt.Sprintf("[Voter Handler - Vote] Voter already voted"))
+		_ = c.Error(fmt.Errorf("voter already voted"))
+		return
+	}
 	iEntity, _ := ballotDto.ToEntity()
 	entity := iEntity.(*entities.Ballot)
 	err = h.repo.Database().Ballot().Create(c, entity)
@@ -41,6 +49,7 @@ func (h *Handler) Vote(c *gin.Context) {
 		return
 	}
 	var ballotRoleElects []*entities.BallotRoleElect
+	var choiceValues []int64
 	for _, roleElect := range req.RoleElects {
 		ballotRoleElectDto := entities.BallotRoleElectDto{
 			BallotRoleElect: entities.BallotRoleElect{
@@ -52,6 +61,7 @@ func (h *Handler) Vote(c *gin.Context) {
 		iEntity, _ := ballotRoleElectDto.ToEntity()
 		entity := iEntity.(*entities.BallotRoleElect)
 		ballotRoleElects = append(ballotRoleElects, entity)
+		choiceValues = append(choiceValues, int64(roleElect.RoleElectId))
 	}
 	err = h.repo.Database().BallotRoleElect().CreateInBatches(c, ballotRoleElects)
 	if err != nil {
@@ -59,6 +69,21 @@ func (h *Handler) Vote(c *gin.Context) {
 		_ = c.Error(err)
 		return
 	}
+	election, err := h.repo.Database().Election().FindById(c, req.ElectionId)
+	if err != nil {
+		h.logger.Error(fmt.Sprintf("[Voter Handler - Vote] Find Election failed, detail: %v", err))
+		_ = c.Error(err)
+		return
+	}
+	h.rabbitMQ.Send(rabbitMQ.RabbitRequest{
+		Type: pkg.TxTypeVote,
+		// electionId, voterId (string), choice value (id)
+		Data: map[string]interface{}{
+			"election_id":  election.ApiObjectId,
+			"voter_id":     strconv.FormatUint(req.VoterId, 10),
+			"choice_value": choiceValues,
+		},
+	})
 	utils.SetResponse(c, map[string]interface{}{
 		"success": true,
 	})

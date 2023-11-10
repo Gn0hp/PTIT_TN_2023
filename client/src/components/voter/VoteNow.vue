@@ -21,13 +21,13 @@
 
       </div>
 
+      <div class="d-flex justify-content-end">
+        <b-form @submit.prevent="onSubmitBallot" class="mr-3">
+          <b-button type="reset" variant="danger" @click="onReset">Cancel</b-button>
+          <b-button type="submit" variant="primary">Submit</b-button>
+        </b-form>
+      </div>
     </div>
-    <b-form @submit.prevent="onSubmitBallot">
-
-      <b-button type="reset" variant="danger" @click="onReset">Cancel</b-button>
-      <b-button type="submit" variant="primary">Submit</b-button>
-
-    </b-form>
     <b-modal v-if="selectedCandidate" @hide="selectedCandidate = null"
              v-model="candidateModalVisible"
              id="modal-candidate-info" centered hide-backdrop

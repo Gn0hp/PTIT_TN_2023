@@ -43,6 +43,12 @@
               </button>
             </a>
 
+            <a href="/#/view_result">
+              <button class="btn btn-primary" @click="viewResult">
+                View Result
+              </button>
+            </a>
+
             </div>
             <p><br></p>Or
              <button class="btn btn-success" @click="signUp">
@@ -137,6 +143,7 @@ export default {
     voteNow () {
       // vote now logic
     },
+    viewResult () {},
     signUp () {
       this.$router.push('/register_candidate')
       // Sign up as candidate logic

@@ -13,7 +13,7 @@ type Repo interface {
 	FindAll(c *gin.Context) ([]*entities.Ballot, error)
 	FindById(c *gin.Context, id uint64) (*entities.Ballot, error)
 	FindByOption(c *gin.Context, option entities.Ballot) ([]*entities.Ballot, error)
-	FindByVoterId(c *gin.Context, voterId uint64) ([]*entities.Ballot, error)
+	FindByVoterId(c *gin.Context, voterId uint64) (*entities.Ballot, error)
 	FindByResultId(c *gin.Context, resultId uint64) ([]*entities.Ballot, error)
 }
 type impl struct {

@@ -26,11 +26,29 @@ func (i *ContractInstance) RenounceOwnership() (*types.Transaction, error) {
 	i.Logger.Info(fmt.Sprintf("[Contract Instance] Renounce Ownership success, detail: %v", res))
 	return res, nil
 }
-func (i *ContractInstance) CreateNewElection(startDate, duration, numCandidate int64) (*types.Transaction, error) {
+func (i *ContractInstance) GetNonce() (*big.Int, error) {
+	res, err := i.Instance.Nonce(i.AccountBoundRead)
+	if err != nil {
+		i.Logger.Error(fmt.Sprintf("[Contract Instance] Get Nonce failed, detail: %v", err))
+		return nil, err
+	}
+	i.Logger.Info(fmt.Sprintf("[Contract Instance] Get Nonce success, detail: %v", res))
+	return res, nil
+}
+func (i *ContractInstance) GetSignatureString() ([]byte, error) {
+	res, err := i.Instance.GetSignature(i.AccountBoundRead)
+	if err != nil {
+		i.Logger.Error(fmt.Sprintf("[Contract Instance] Get Signature failed, detail: %v", err))
+		return nil, err
+	}
+	i.Logger.Info(fmt.Sprintf("[Contract Instance] Get Signature success, detail: %v", res))
+	return res, nil
+}
+func (i *ContractInstance) CreateNewElection(startDate, duration, numCandidate uint64) (*types.Transaction, error) {
 	res, err := i.Instance.CreateNewElection(i.AccountBoundWrite,
-		big.NewInt(startDate),
-		big.NewInt(duration),
-		big.NewInt(numCandidate),
+		big.NewInt(int64(startDate)),
+		big.NewInt(int64(duration)),
+		big.NewInt(int64(numCandidate)),
 	)
 	if err != nil {
 		i.Logger.Error(fmt.Sprintf("[Contract Instance] Create New Election failed, detail: %v", err))
@@ -40,11 +58,18 @@ func (i *ContractInstance) CreateNewElection(startDate, duration, numCandidate i
 	return res, nil
 
 }
-func (i *ContractInstance) Vote(electionId int64, voterId string, choiceValue int64) (*types.Transaction, error) {
+func convertInt64ToBigIntArray(arr []int64) []*big.Int {
+	var res []*big.Int
+	for _, v := range arr {
+		res = append(res, big.NewInt(v))
+	}
+	return res
+}
+func (i *ContractInstance) Vote(electionId int64, voterId string, choiceValue []int64) (*types.Transaction, error) {
 	res, err := i.Instance.Vote(i.AccountBoundWrite,
 		big.NewInt(electionId),
 		voterId,
-		big.NewInt(choiceValue))
+		convertInt64ToBigIntArray(choiceValue))
 	if err != nil {
 		i.Logger.Error(fmt.Sprintf("[Contract Instance] Vote failed, detail: %v", err))
 		return nil, err

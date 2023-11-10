@@ -39,8 +39,8 @@ func (i impl) FindById(c *gin.Context, id uint64) (*entities.RoleElect, error) {
 	return roleElect, nil
 }
 
-func (i impl) FindByCandidateId(c *gin.Context, candidateId uint64) ([]*entities.RoleElect, error) {
-	var roleElects []*entities.RoleElect
+func (i impl) FindByCandidateId(c *gin.Context, candidateId uint64) (*entities.RoleElect, error) {
+	var roleElects *entities.RoleElect
 	query := i.db.Gdb().
 		WithContext(c).
 		Model(&entities.RoleElect{}).
@@ -48,7 +48,7 @@ func (i impl) FindByCandidateId(c *gin.Context, candidateId uint64) ([]*entities
 	err := query.Find(&roleElects).Error
 	if err != nil {
 		if err.Error() == gorm.ErrRecordNotFound.Error() {
-			return []*entities.RoleElect{}, nil
+			return nil, nil
 		}
 		i.logger.Error(fmt.Sprintf("[RoleElect Repo] Find RoleElect failed, detail: %v", err))
 		return nil, err
@@ -79,6 +79,23 @@ func (i impl) FindByOption(c *gin.Context, option entities.RoleElect) ([]*entiti
 		WithContext(c).
 		Model(&entities.RoleElect{}).
 		Where(&option)
+	err := query.Find(&roleElects).Error
+	if err != nil {
+		if err.Error() == gorm.ErrRecordNotFound.Error() {
+			return []*entities.RoleElect{}, nil
+		}
+		i.logger.Error(fmt.Sprintf("[RoleElect Repo] Find RoleElect failed, detail: %v", err))
+		return nil, err
+	}
+	return roleElects, nil
+}
+func (i impl) FindUniqueById(c *gin.Context, candidateId, electionRoleId uint64) ([]*entities.RoleElect, error) {
+	var roleElects []*entities.RoleElect
+	query := i.db.Gdb().
+		WithContext(c).
+		Model(&entities.RoleElect{}).
+		Where("candidate_id = ?", candidateId).
+		Where("election_role_id = ?", electionRoleId)
 	err := query.Find(&roleElects).Error
 	if err != nil {
 		if err.Error() == gorm.ErrRecordNotFound.Error() {

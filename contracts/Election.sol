@@ -93,7 +93,7 @@ abstract contract Ownable is Context {
     }
 }
 contract CommonUtil {
-    uint256 nonce = 0;
+    uint256 public nonce = 0;
     struct Election {
         uint256 id;
         uint256 startDate ;   //timestamp
@@ -136,7 +136,7 @@ contract Elector is Ownable, CommonUtil{
     // mapping(uint256 => mapping(uint256 => Ballot)) electionToBallot;
 
     event NewElectionCreated(uint256 _startDate, uint256 _duration, uint256 _numCandidate);
-    event Voted(uint256 indexed electionId, bytes32 indexed voterHash, uint256 indexed value);
+    event Voted(uint256 indexed electionId, bytes32 indexed voterHash, uint256[] indexed value);
     constructor(string memory prvKey) Ownable(_msgSender()){
         _signatureString = bytes32ToString(keccak256(abi.encodePacked(prvKey)));
     }
@@ -148,8 +148,12 @@ contract Elector is Ownable, CommonUtil{
         elections[nonce] = Election(nonce, _startDate, _duration, _numCandidate);
     }
 
+    function getSignature() external view onlyOwner returns (bytes memory) {
+        return _stringToByte(_signatureString);
+    }
+
     // value is id in offchain database of candidate Id
-    function vote(uint256 electionId, string memory _voterId, uint256 value) external onlyOwner {
+    function vote(uint256 electionId, string memory _voterId, uint256[] memory value) external onlyOwner {
         // TODO: require time
         Election memory el = elections[electionId];
         require(block.timestamp >= el.startDate && block.timestamp <= el.startDate + el.duration, "[Vote]: Invalid voting time");
@@ -158,8 +162,11 @@ contract Elector is Ownable, CommonUtil{
 
         // Ballot memory _bal = Ballot(hashVoterId, value);
 
-        electionToResult[electionId][value]++;
+        for(uint256 i = 0; i < value.length; ++i){
+            electionToResult[electionId][value[i]]++;
+        }
         isVoted[electionId][hashVoterId] = true;
+
 
         emit Voted(electionId, hashVoterId, value);
     }

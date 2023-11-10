@@ -96,3 +96,28 @@ func (h *Handler) FindAllPost(c *gin.Context) {
 		"data":    posts,
 	})
 }
+
+func (h *Handler) WatchResult(c *gin.Context) {
+	candidateId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil || candidateId == 0 {
+		h.logger.Error(fmt.Sprintf("[Candidate Handler - Watch Result] Invalid Candidate ID, detail: %v", err))
+		_ = c.Error(err)
+		return
+	}
+	roleElect, err := h.repo.Database().RoleElect().FindByCandidateId(c, uint64(candidateId))
+	if err != nil {
+		h.logger.Error(fmt.Sprintf("[Candidate Handler - Watch Result] Find RoleElect failed, detail: %v", err))
+		_ = c.Error(err)
+		return
+	}
+	resDetail, err := h.repo.Database().BallotRoleElect().CountVoterByCandidateId(c, roleElect.ID)
+	if err != nil {
+		h.logger.Error(fmt.Sprintf("[Candidate Handler - Watch Result] Count Voter failed, detail: %v", err))
+		_ = c.Error(err)
+		return
+	}
+	utils.SetResponse(c, map[string]interface{}{
+		"success": true,
+		"data":    resDetail,
+	})
+}

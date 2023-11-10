@@ -27,8 +27,9 @@ type CreateElectionReq struct {
 	NumCandidate uint64 `json:"num_candidate"`
 }
 type Ballot struct {
-	Voter string `json:"voter"`
-	Value string `json:"value"`
+	ElectionId  uint64  `json:"election_id"`
+	VoterId     string  `json:"voter_id"`
+	ChoiceValue []int64 `json:"choice_value"`
 }
 
 func main() {
@@ -82,7 +83,7 @@ func main() {
 			json.Unmarshal(d.Body, &jsonRes)
 			log.Printf("Received a message: %s", d.Body)
 			switch jsonRes.Type {
-			case "create_election":
+			case TxTypeCreateElection:
 				fmt.Println("Create election ")
 				createElectionReq, ok := jsonRes.Data.(map[string]interface{})
 				if !ok {
@@ -94,35 +95,67 @@ func main() {
 					Duration:     uint64(createElectionReq["duration"].(float64)),
 					NumCandidate: uint64(createElectionReq["num_candidate"].(float64)),
 				}
-				fmt.Printf("Data: %v", data)
-			case "vote":
+				tx, err := contract.CreateNewElection(data.StartDate, data.Duration, data.NumCandidate)
+				if err != nil {
+					logger.Error(fmt.Sprintf("[Contract Instance] Create New Election failed, detail: %v", err))
+					continue
+				}
+				logger.Info(fmt.Sprintf("[Contract Instance] Create New Election success, detail: %v", tx))
+			case TxTypeVote:
 				fmt.Printf("Vote: %v", jsonRes.Data)
 				balJson, ok := jsonRes.Data.(map[string]interface{})
 				if !ok {
 					fmt.Println("Invalid json object")
 				}
-				ballot := Ballot{
-					Voter: balJson["voter"].(string),
-					Value: balJson["value"].(string),
+				tmp, ok := balJson["choice_value"].([]interface{})
+				if !ok {
+					fmt.Println("Invalid json object: choice value")
 				}
-				fmt.Printf("Data: %v", ballot)
-			case "transfer_ownership":
-			case "renounce_ownership":
-			case "elections_mapping":
+				var choiceValue []int64
+				for _, v := range tmp {
+					choiceValue = append(choiceValue, int64(v.(float64)))
+				}
+				ballot := Ballot{
+					ElectionId:  uint64(balJson["election_id"].(float64)),
+					VoterId:     balJson["voter_id"].(string),
+					ChoiceValue: choiceValue,
+				}
+				res, err := contract.Vote(int64(ballot.ElectionId), ballot.VoterId, ballot.ChoiceValue)
+				if err != nil {
+					logger.Error(fmt.Sprintf("[Contract Instance] Vote failed, detail: %v", err))
+					continue
+				}
+				logger.Info(fmt.Sprintf("[Contract Instance] Vote success, detail: %v", res))
+			case TxTypeTransferOwnership:
+			case TxTypeRenounceOwnership:
+			case TxTypeElectionMapping:
 				res, err := contract.ElectionsMapping(1)
 				if err != nil {
 					fmt.Printf("Error: %v", err)
 				}
 				fmt.Printf(fmt.Sprintf("Data Election Mapping: %v", res))
-			case "election_to_result":
-			case "get_election_result":
-			case "is_voted":
-			case "owner":
+			case TxTypeElectionToResult:
+			case TxTypeGetElectionResult:
+			case TxTypeIsVoted:
+			case TxTypeOwner:
 				fmt.Printf("Data Owner: %v", contract.Owner())
+			case TxTypeNonce:
+				nonce, err := contract.GetNonce()
+				if err != nil {
+					logger.Error(fmt.Sprintf("[Contract Instance] Get Nonce failed, detail: %v", err))
+					continue
+				}
+				logger.Info(fmt.Sprintf("[Contract Instance] Get Nonce success, detail: %v", nonce))
+			case TxTypeSignature:
+				signature, err := contract.GetSignatureString()
+				if err != nil {
+					logger.Error(fmt.Sprintf("[Contract Instance] Get Signature failed, detail: %v", err))
+					continue
+				}
+				logger.Info(fmt.Sprintf("[Contract Instance] Get Signature success, detail: %v", signature))
 			default:
 
 			}
-
 		}
 	}()
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
@@ -136,7 +169,7 @@ func initClient(ctx context.Context, client *ethclient.Client) (*big.Int, *bind.
 		log.Fatal(fmt.Sprintf("Failed to get chain id: %v", err))
 		return nil, nil, err
 	}
-	accountBinding, err := TransactOptsAccountBinding(big.NewInt(56), prvKey)
+	accountBinding, err := TransactOptsAccountBinding(chainId, prvKey)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Failed to create account binding: %v", err))
 		return nil, nil, err

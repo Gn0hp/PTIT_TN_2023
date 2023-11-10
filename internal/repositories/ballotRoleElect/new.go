@@ -13,8 +13,10 @@ type Repo interface {
 	FindAll(c *gin.Context) ([]*entities.BallotRoleElect, error)
 	FindById(c *gin.Context, id uint64) (*entities.BallotRoleElect, error)
 	FindByOption(c *gin.Context, option entities.BallotRoleElect) ([]*entities.BallotRoleElect, error)
-	FindByBallotId(c *gin.Context, ballotId uint64) ([]*entities.BallotRoleElect, error)
+	FindByBallotId(c *gin.Context, ballotId uint64) ([]*StatByBallotResponse, error)
 	FindByRoleElectId(c *gin.Context, roleElectId uint64) ([]*entities.BallotRoleElect, error)
+	CountVoterByCandidateId(c *gin.Context, roleElectId uint64) (int64, error)
+	StatVoterByRoleElectId(c *gin.Context, roleElectId uint64) ([]*StatBreByCandidateDbFind, error)
 }
 type impl struct {
 	logger logur.LoggerFacade

@@ -78,12 +78,6 @@ func (i impl) FindByOption(c *gin.Context, option entities.Candidate) ([]*entiti
 	return candidates, nil
 }
 
-type ViewCandidateDbFind struct {
-	entities.Candidate
-	RoleElectId    uint64 `json:"reId"`
-	ElectionRoleId string `json:"erId"`
-}
-
 func (i impl) FindCandidateByElectionRoleId(c *gin.Context, electionRoleId uint64) ([]*ViewCandidateDbFind, error) {
 	var candidates []*ViewCandidateDbFind
 	tx := i.db.Gdb().WithContext(c).Raw("select c.*, er.id as ElectionRoleId, er.name as erName, re.id as RoleElectId from ptit_tn.candidates c "+
@@ -100,6 +94,41 @@ func (i impl) FindCandidateByElectionRoleId(c *gin.Context, electionRoleId uint6
 	}
 	return candidates, nil
 }
+func (i impl) DeactivateElectionCandidate(c *gin.Context, electionId uint64) error {
+	var candidateIds []uint64
+	tx := i.db.Gdb().WithContext(c).Begin()
+	err := tx.Raw("select c.id from ptit_tn.candidates c "+
+		"right join ptit_tn.role_elects re on re.candidate_id = c.id "+
+		"join ptit_tn.election_roles er on er.id = re.election_role_id "+
+		"join ptit_tn.election_candidates ec on ec.id =er.election_candidate_id "+
+		"join ptit_tn.elections e on e.id = ec.election_id "+
+		"where e.id=? and c.candidate_status=?;", electionId, entities.CANDIDATE_STATUS_VERIFIED).Scan(&candidateIds).Error
+	if err != nil {
+		tx.Rollback()
+		if err.Error() == gorm.ErrRecordNotFound.Error() {
+			return nil
+		}
+		i.logger.Error(fmt.Sprintf("[Candidate Repo] Deactivate Election Candidate - Find candidateIds Error: %v", err))
+		return err
+	}
+	if len(candidateIds) == 0 {
+		tx.Rollback()
+		return nil
+	}
+	err = tx.Model(&entities.Candidate{}).Where("id in ?", candidateIds).Update("candidate_status", entities.CANDIDATE_STATUS_INACTIVE).Error
+	if err != nil {
+		tx.Rollback()
+		i.logger.Error(fmt.Sprintf("[Candidate Repo] Deactivate Election Candidate - Update candidate status Error: %v", err))
+		return err
+	}
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		i.logger.Error(fmt.Sprintf("[Candidate Repo] Deactivate Election Candidate - Commit Error: %v", err))
+		return err
+	}
+	return nil
+}
+
 func (i impl) GetPendingCandidate(c *gin.Context) ([]*entities.Candidate, error) {
 	var candidates []*entities.Candidate
 	query := i.db.Gdb().
@@ -136,4 +165,23 @@ func (i impl) CheckRegistered(c *gin.Context, cccd string, roleElectId uint64) (
 	} else {
 		return false, nil
 	}
+}
+
+func (i impl) ViewResult(c *gin.Context, electionRoleId uint64) ([]*ViewResultDbFind, error) {
+	var candidates []*ViewResultDbFind
+	tx := i.db.Gdb().WithContext(c).Raw("select  c.* , er.id as ElectionRoleId, er.name as erName, re.id as RoleElectId, count(bre.role_elect_id) as NumVote from ptit_tn.candidates c "+
+		"join ptit_tn.role_elects re on re.candidate_id = c.id "+
+		"join ptit_tn.election_roles er on er.id = re.election_role_id "+
+		"left join ptit_tn.ballot_role_elects bre on bre.role_elect_id = re.id "+
+		"where er.id = ? "+
+		"group by c.id order by NumVote desc;", electionRoleId)
+	err := tx.Scan(&candidates).Error
+	if err != nil {
+		if err.Error() == gorm.ErrRecordNotFound.Error() {
+			return []*ViewResultDbFind{}, nil
+		}
+		i.logger.Error(fmt.Sprintf("[Candidate Repo] Find Candidate By ElectionRoleId Error: %v", err))
+		return nil, err
+	}
+	return candidates, nil
 }

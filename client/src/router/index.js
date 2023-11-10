@@ -11,8 +11,12 @@ import RegisterCandidate from '../components/candidate/RegisterCandidate'
 import VoteNow from '../components/voter/VoteNow'
 import Profile from '../components/Profile'
 import VerifyUser from '../components/admin/VerifyUser.vue'
+import AdminStat from '../components/admin/Stat.vue'
+import AdminStatRoleElect from '../components/admin/StatRoleElect.vue'
+import AdminStatBallot from '../components/admin/StatBallot.vue'
 import UserManagement from '../components/admin/UserManagement.vue'
 import CreateElection from '../components/admin/CreateElection.vue'
+import ViewResult from '../components/voter/ViewResult.vue'
 
 Vue.use(Router)
 
@@ -89,9 +93,33 @@ export default new Router({
       component: UserManagement
     },
     {
+      path: '/admin/stat',
+      name: 'AdminStat',
+      component: AdminStat
+    },
+    {
+      path: '/admin/stat-role-elect/:id',
+      name: 'AdminStatRoleElect',
+      component: AdminStatRoleElect
+    },
+    {
+      path: '/admin/stat-ballot/:id',
+      name: 'AdminStatBallot',
+      component: AdminStatBallot
+    },
+    {
       path: '/me/profile',
       name: 'Profile',
       component: Profile
+    },
+    {
+      path: '/view_result',
+      name: 'ViewResult',
+      component: ViewResult
+    },
+    {
+      path: '*',
+      redirect: '/'
     }
   ]
 })

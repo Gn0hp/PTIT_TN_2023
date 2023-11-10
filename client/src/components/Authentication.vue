@@ -282,6 +282,7 @@ export default {
             }
             localStorage.setItem('userGlobal', JSON.stringify(data.data.data.data))
             localStorage.setItem('accessToken', data.data.data.access_token)
+            console.log(data.data.data.access_token)
           }
         }).then(async () => {
           await AxiosInstance.get(RequestParams.host + RequestParams.path.check_election,

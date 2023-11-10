@@ -19,6 +19,9 @@
         </div>
         <div class="card-body">
           <button class="btn btn-primary" @click="postModalShow = !postModalShow">Create Post</button>
+          <a href="/#/view_result">
+            <button class="btn btn-primary">View Latest Election Result</button>
+          </a>
           <table class="table">
             <thead>
             <tr>
@@ -128,6 +131,18 @@ export default {
     })
       .then(response => {
         this.posts = response.data.data.data
+      })
+      .then(async () => {
+        await AxiosInstance.get(`${RequestParams.host}${RequestParams.path.candidate_watch_result}/${this.candidateInstance.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+            }
+          })
+          .then(res => {
+            console.log(res.data.data.data)
+            this.votes = res.data.data.data
+          })
       })
       .catch(error => {
         console.log(error)

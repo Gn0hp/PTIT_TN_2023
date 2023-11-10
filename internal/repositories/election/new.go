@@ -14,6 +14,8 @@ type Repo interface {
 	FindById(c *gin.Context, id uint64) (*entities.Election, error)
 	FindByOption(c *gin.Context, option entities.Election) ([]*entities.Election, error)
 	FindOpenElection(c *gin.Context) (*entities.Election, error)
+	CountErsByElectionId(c *gin.Context, electionId uint64) (uint64, error)
+	FindLatestElection(c *gin.Context) (uint64, error)
 }
 
 type impl struct {

@@ -91,7 +91,6 @@ export default {
       this.election.date_end_register = this.convertDateToTs(this.election.dateEndRegistering)
       this.election.duration = this.election.dateEndElecting - this.election.date_start_electing
       console.log(this.election)
-      // TODO: post to server
       await AxiosInstance.post(RequestParams.host + RequestParams.path.createElection, this.election).then(data => {
         console.log(data)
         this.$router.push('/admin/home')

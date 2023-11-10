@@ -58,24 +58,9 @@ export default {
     return {
       fields: ['id', 'name', 'cccd', 'status', 'actions'],
       fieldsCandidate: ['id', 'name', 'cccd', 'status', 'candidate_status', 'actions'],
-      items: []
+      items: [
       // unverifiedVoters: [
-      //   {
-      //     id: 1,
-      //     name: 'John Doe',
-      //     cccd: '1234567890123456'
-      //   },
-      //   {
-      //     id: 2,
-      //     name: 'Jane Doe',
-      //     cccd: '1234567890123456'
-      //   },
-      //   {
-      //     id: 3,
-      //     name: 'John Smith',
-      //     cccd: '1234567890123456'
-      //   }
-      // ]
+      ]
     }
   },
   created () {

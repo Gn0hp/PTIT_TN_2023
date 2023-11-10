@@ -17,7 +17,9 @@ type Repo interface {
 	FindByCccd(c *gin.Context, cccd string) (*entities.Candidate, error)
 	FindById(c *gin.Context, id uint64) (*entities.Candidate, error)
 	FindCandidateByElectionRoleId(c *gin.Context, electionRoleId uint64) ([]*ViewCandidateDbFind, error)
+	DeactivateElectionCandidate(c *gin.Context, electionId uint64) error
 	GetPendingCandidate(c *gin.Context) ([]*entities.Candidate, error)
+	ViewResult(c *gin.Context, electionRoleId uint64) ([]*ViewResultDbFind, error)
 	Delete(c *gin.Context, id uint64) error
 }
 

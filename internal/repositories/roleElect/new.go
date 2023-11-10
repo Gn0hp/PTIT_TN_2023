@@ -13,8 +13,9 @@ type Repo interface {
 	CreateInBatch(c *gin.Context, v []*entities.RoleElect) error
 	FindAll(c *gin.Context) ([]*entities.RoleElect, error)
 	FindById(c *gin.Context, id uint64) (*entities.RoleElect, error)
-	FindByCandidateId(c *gin.Context, candidateId uint64) ([]*entities.RoleElect, error)
+	FindByCandidateId(c *gin.Context, candidateId uint64) (*entities.RoleElect, error)
 	FindByElectionRoleId(c *gin.Context, electionRoleId uint64) ([]*entities.RoleElect, error)
+	FindUniqueById(c *gin.Context, candidateId, electionRoleId uint64) ([]*entities.RoleElect, error)
 	FindByOption(c *gin.Context, option entities.RoleElect) ([]*entities.RoleElect, error)
 }
 type impl struct {

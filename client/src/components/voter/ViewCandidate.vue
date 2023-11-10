@@ -91,7 +91,7 @@ export default {
   },
   methods: {
     onRowSelected (item) {
-      this.$router.push(`/voters/view_candidates/${item[0].id}`)
+      this.$router.push(`/voters/view_candidates/${item[0].id}?name=${item[0].full_name}`)
     }
   }
 }
