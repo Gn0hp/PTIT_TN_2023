@@ -97,13 +97,15 @@ export default {
       show1: false,
       show2: false,
       showEditModal: false,
-      selectedUser: null
+      selectedUser: null,
+      selectedType: null
     }
   },
   methods: {
     editVoter (id, user) {
       this.showEditModal = !this.showEditModal
       this.selectedUser = user
+      this.selectedType = 'voter'
       // open edit modal
     },
     deleteVoter (id) {
@@ -113,6 +115,7 @@ export default {
       console.log(user)
       this.showEditModal = !this.showEditModal
       this.selectedUser = user
+      this.selectedType = 'candidate'
     },
     deleteCandidate (id) {
       // call API to delete
@@ -122,7 +125,7 @@ export default {
       this.show1 = true
       this.show2 = false
       this.selectedUser = null
-
+      console.log('show voter token: ', sessionStorage.getItem('accessToken'))
       await AxiosInstance.get(RequestParams.host + RequestParams.path.getVoterList)
         .then((res) => {
           console.log(res.data)
@@ -146,7 +149,31 @@ export default {
         })
     },
     async submitEdit () {
-
+      if (this.selectedType === 'voter') {
+        console.log(`Go here with type of voter - ${this.selectedType} - ${this.selectedUser}`)
+        // Axios patchVoter/:id
+        await AxiosInstance.patch(`${RequestParams.host}${RequestParams.path.patchVoter}/${this.selectedUser.id}`, this.selectedUser)
+          .then((res) => {
+            console.log(res.data.data)
+            this.showEditModal = false
+            this.selectedUser = null
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      } else if (this.selectedType === 'candidate') {
+        console.log(`Go here with type of candidate - ${this.selectedType} - ${this.selectedUser}`)
+        // Axios patchCandidate/:id
+        await AxiosInstance.patch(`${RequestParams.host}${RequestParams.path.patchCandidate}/${this.selectedUser.id}`, this.selectedUser)
+          .then((res) => {
+            console.log(res.data.data)
+            this.showEditModal = false
+            this.selectedUser = null
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      }
     }
   }
 }

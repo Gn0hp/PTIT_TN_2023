@@ -120,10 +120,10 @@ export default {
     'Header': Header
   },
   async created () {
-    this.candidateInstance = JSON.parse(localStorage.getItem('userGlobal'))
+    this.candidateInstance = JSON.parse(sessionStorage.getItem('userGlobal'))
     await AxiosInstance.get(RequestParams.host + RequestParams.path.get_post_by_candidate_id, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
       },
       params: {
         candidate_id: this.candidateInstance.id
@@ -136,7 +136,7 @@ export default {
         await AxiosInstance.get(`${RequestParams.host}${RequestParams.path.candidate_watch_result}/${this.candidateInstance.id}`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+              Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
             }
           })
           .then(res => {
@@ -193,7 +193,7 @@ export default {
         this.newPost, {
           headers:
           {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+            Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
           }
         }
       )
@@ -211,7 +211,7 @@ export default {
       console.log('post id: ', id)
       await AxiosInstance.delete(RequestParams.host + RequestParams.path.delete_post, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+          Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
         },
         params: {
           id: id
@@ -229,7 +229,7 @@ export default {
       console.log(this.selectedPost)
       await AxiosInstance.patch(RequestParams.host + RequestParams.path.patch_post, this.selectedPost, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+          Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
         },
         params: {
           id: this.selectedPost.id

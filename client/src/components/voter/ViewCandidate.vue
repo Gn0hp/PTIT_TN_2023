@@ -46,10 +46,10 @@ export default {
   async created () {
     await AxiosInstance.get(RequestParams.host + RequestParams.path.view_candidate, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
       },
       params: {
-        election_id: localStorage.getItem('electionId')
+        election_id: sessionStorage.getItem('electionId')
       }
     })
       .then(response => {

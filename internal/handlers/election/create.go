@@ -48,7 +48,6 @@ func (h *Handler) CreateElection(c *gin.Context) {
 }
 
 func (h *Handler) PushBlockchain(c *gin.Context) {
-	// TODO: Push RabbitMQ save Blockchain
 	// Update Election in off-chain db
 	// Update ApiObjectID -> manually by calling nonce
 	var electionDto entities.ElectionDto

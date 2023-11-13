@@ -74,10 +74,10 @@ export default {
   name: 'RegisterCandidate',
   components: {Footer, PlaceSelection, Header},
   async created () {
-    console.log(localStorage)
+    console.log(sessionStorage)
     await AxiosInstance.get(RequestParams.host + RequestParams.path.election_roles_by_election_id, {
       params: {
-        election_id: localStorage.getItem('electionId')
+        election_id: sessionStorage.getItem('electionId')
       }
     }).then(res => {
       this.roles = res.data.data.data
@@ -99,7 +99,7 @@ export default {
   },
   methods: {
     async submitForm () {
-      const user = JSON.parse(localStorage.getItem('userGlobal'))
+      const user = JSON.parse(sessionStorage.getItem('userGlobal'))
       console.log(user)
       const postBody = {
         address: user.address,

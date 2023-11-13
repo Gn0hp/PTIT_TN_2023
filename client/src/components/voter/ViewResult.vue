@@ -50,7 +50,7 @@ export default {
   async created () {
     await AxiosInstance.get(RequestParams.host + RequestParams.path.view_result, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
       }
     })
       .then(response => {

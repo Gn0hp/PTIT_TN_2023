@@ -147,12 +147,12 @@ export default {
     },
     async closeElectionRegister () {
       const postBody = {
-        id: parseInt(localStorage.getItem('electionId')),
+        id: parseInt(sessionStorage.getItem('electionId')),
         date_start_electing: Math.floor(Date.now() / 1000),
         duration: RequestParams.default_elect_duration
       }
       console.log(postBody)
-      await AxiosInstance.post(RequestParams.host + RequestParams.path.close_election + `/${localStorage.getItem('electionId')}`, postBody)
+      await AxiosInstance.post(RequestParams.host + RequestParams.path.close_election + `/${sessionStorage.getItem('electionId')}`, postBody)
         .then(res => {
           console.log(res.data.data)
           const success = res.data.data.success
@@ -180,7 +180,7 @@ export default {
       console.log('go here with', success, message)
     },
     async closeElection () {
-      const electionId = localStorage.getItem('electionId')
+      const electionId = sessionStorage.getItem('electionId')
       await AxiosInstance.post(`${RequestParams.host}${RequestParams.path.finish_election}/${electionId}`)
         .then(async res => {
           const success = res.data.data.success

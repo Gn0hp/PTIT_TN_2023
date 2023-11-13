@@ -63,7 +63,7 @@ export default {
     userName: String
   },
   created () {
-    const userGlobal = JSON.parse(localStorage.getItem('userGlobal'))
+    const userGlobal = JSON.parse(sessionStorage.getItem('userGlobal'))
     this.userName = userGlobal.full_name
   },
   methods: {
@@ -72,8 +72,8 @@ export default {
     },
     logout () {
       // logout logic
-      localStorage.removeItem('userGlobal')
-      localStorage.removeItem('accessToken')
+      sessionStorage.removeItem('userGlobal')
+      sessionStorage.removeItem('accessToken')
       AxiosInstance.defaults.headers.common['Authorization'] = null
       this.$router.push('/')
     }

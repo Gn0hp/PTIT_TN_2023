@@ -55,13 +55,13 @@ export default {
     Footer
   },
   async created () {
-    this.ballot.voter_id = JSON.parse(localStorage.getItem('userGlobal')).id
+    this.ballot.voter_id = JSON.parse(sessionStorage.getItem('userGlobal')).id
     await AxiosInstance.get(RequestParams.host + RequestParams.path.view_candidate, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
       },
       params: {
-        election_id: localStorage.getItem('electionId')
+        election_id: sessionStorage.getItem('electionId')
       }
     })
       .then(response => {
@@ -115,18 +115,18 @@ export default {
     async onSubmitBallot () {
       this.ballot.role_elects = this.candidates.flatMap((g) => {
         return g.candidates.filter((c) => c.selected).map((c) => {
-          console.log('electionId: ', localStorage.getItem('electionId'))
+          console.log('electionId: ', sessionStorage.getItem('electionId'))
           return {
             role_elect_id: c.reId,
             candidate_id: c.id
           }
         })
       })
-      this.ballot.election_id = parseInt(localStorage.getItem('electionId'))
+      this.ballot.election_id = parseInt(sessionStorage.getItem('electionId'))
       console.log('ballot: ', this.ballot)
       await AxiosInstance.post(RequestParams.host + RequestParams.path.vote, this.ballot, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+          Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
         }
       })
         .then(response => {

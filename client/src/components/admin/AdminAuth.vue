@@ -70,8 +70,8 @@ export default {
         AxiosInstance.defaults.headers.common['Authorization'] = `Bearer ${data.data.data.access_token}`
         const userGlobal = data.data.data.data
         userGlobal.username = data.data.data.data.username
-        localStorage.setItem('userGlobal', JSON.stringify(userGlobal))
-        localStorage.setItem('accessToken', data.data.data.access_token)
+        sessionStorage.setItem('userGlobal', JSON.stringify(userGlobal))
+        sessionStorage.setItem('accessToken', data.data.data.access_token)
         if (data.data.data.data.id) {
           this.$router.push('/admin/home')
         }
