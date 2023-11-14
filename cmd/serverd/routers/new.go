@@ -13,7 +13,6 @@ import (
 	"PTIT_TN/pkg/auth"
 	"PTIT_TN/pkg/rabbitMQ"
 	"PTIT_TN/pkg/utils"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"logur.dev/logur"
@@ -36,8 +35,8 @@ func New(logger logur.LoggerFacade, database *db.GormDB, redisDb *redis.Client, 
 	}
 	// Middlewares
 	r.Use(
-		cors.New(config),                 // CORS
-		auth.Middleware(logger),          // Auth JWT
+		cors.New(config),        // CORS
+		auth.Middleware(logger), // Auth JWT
 		utils.ResponseMiddleware(logger)) // Response
 	//r.Use(web.RequestIdMiddleware())
 
@@ -83,7 +82,7 @@ func New(logger logur.LoggerFacade, database *db.GormDB, redisDb *redis.Client, 
 	electionUrl := api.Group("/election")
 	electionUrl.GET("/check", electionHandler.CheckElection)
 	electionUrl.POST("/create", electionHandler.CreateElection)
-	electionUrl.GET("/view-result", electionHandler.ViewResult) // TODO
+	electionUrl.GET("/view-result", electionHandler.ViewResult)
 	electionUrl.POST("/push-blockchain/:id", electionHandler.PushBlockchain)
 	electionUrl.POST("/close/:id", electionHandler.CloseElection)
 

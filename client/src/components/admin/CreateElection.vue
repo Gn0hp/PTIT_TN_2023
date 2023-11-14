@@ -91,7 +91,11 @@ export default {
       this.election.date_end_register = this.convertDateToTs(this.election.dateEndRegistering)
       this.election.duration = this.election.dateEndElecting - this.election.date_start_electing
       console.log(this.election)
-      await AxiosInstance.post(RequestParams.host + RequestParams.path.createElection, this.election).then(data => {
+      await AxiosInstance.post(RequestParams.host + RequestParams.path.createElection, this.election, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+      }).then(data => {
         console.log(data)
         this.$router.push('/admin/home')
       }).catch(err => {

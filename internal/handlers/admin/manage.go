@@ -67,6 +67,17 @@ func (h *Handler) DeleteVoter(c *gin.Context) {
 		"success": true,
 	})
 }
+
+// GetVoterDetail godoc
+// @Summary Get voter detail
+// @Description Get voter's info by id
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param id path int true "Voter ID"
+// @Success 200 {object} entities.Voter
+// @Failure 400 {object} map[string]interface{}
+// @Router /admin/voter-detail/{id} [get]
 func (h *Handler) GetVoterDetail(c *gin.Context) {
 	voterId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {

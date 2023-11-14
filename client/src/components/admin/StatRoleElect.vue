@@ -32,9 +32,13 @@ export default {
   components: { Header, Footer },
   async created () {
     const candidateId = this.$route.params.id
-    await AxiosInstance.get(`${RequestParams.host}${RequestParams.path.stat_roleElect}/${candidateId}`)
+    await AxiosInstance.get(`${RequestParams.host}${RequestParams.path.stat_roleElect}/${candidateId}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+      }
+    })
       .then(res => {
-        console.log(res.data.data.data)
+        console.log(res)
         this.roleElects = res.data.data.data
       })
   },

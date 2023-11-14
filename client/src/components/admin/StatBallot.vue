@@ -34,7 +34,11 @@ export default {
   components: { Header, Footer },
   async created () {
     const ballotId = this.$route.params.id
-    await AxiosInstance.get(`${RequestParams.host}${RequestParams.path.stat_ballot}/${ballotId}`)
+    await AxiosInstance.get(`${RequestParams.host}${RequestParams.path.stat_ballot}/${ballotId}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+      }
+    })
       .then(res => {
         console.log(res.data.data.data)
         this.ballots = res.data.data.data

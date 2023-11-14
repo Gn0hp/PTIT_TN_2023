@@ -75,10 +75,21 @@ export default {
         if (data.data.data.data.id) {
           this.$router.push('/admin/home')
         }
-      }).catch(err => {
-        console.log(err)
-        throw (err)
+      }).then(async () => {
+        await AxiosInstance.get(RequestParams.host + RequestParams.path.check_election,
+          {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+            }
+          }).then(data => {
+          sessionStorage.setItem('electionId', data.data.data.data.election_id)
+          sessionStorage.setItem('hasElection', data.data.data.data.has_election)
+        })
       })
+        .catch(err => {
+          console.log(err)
+          throw (err)
+        })
     }
   }
 }

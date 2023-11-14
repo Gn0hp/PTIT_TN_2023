@@ -78,6 +78,9 @@ export default {
     await AxiosInstance.get(RequestParams.host + RequestParams.path.election_roles_by_election_id, {
       params: {
         election_id: sessionStorage.getItem('electionId')
+      },
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
       }
     }).then(res => {
       this.roles = res.data.data.data
@@ -119,7 +122,11 @@ export default {
         role: this.candidate.role
       }
       console.log(postBody)
-      await AxiosInstance.post(RequestParams.host + RequestParams.path.registerCandidate, postBody).then(data => {
+      await AxiosInstance.post(RequestParams.host + RequestParams.path.registerCandidate, postBody, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+      }).then(data => {
         console.log(data)
         this.$router.push('/voters/home')
       }).catch(err => {

@@ -13,6 +13,9 @@
                  select-mode="single" ref="selectableTable"
                  selectable @row-selected="onRowSelected($event, group.role)" :fields="fields"
         >
+          <template v-slot:cell(id)="data">
+           {{ data.index + 1 }}
+          </template>
           <template v-slot:cell(vote)="data">
             <b-form-checkbox :checked="data.item.selected"
                              v-model="data.item.selected"></b-form-checkbox>
@@ -103,8 +106,8 @@ export default {
       this.selectedCandidate = candidate
     },
     async onRowSelected (item, tblId) {
-      console.log(item)
-      const tblSelected = this.candidates.find((item) => item.role === tblId)
+      console.log(item, tblId)
+      const tblSelected = this.candidates.find((item1) => item1.role === tblId)
       tblSelected.candidates.map((candidate) => {
         candidate.selected = false
       })

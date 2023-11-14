@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"logur.dev/logur"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -17,6 +18,9 @@ type Response struct {
 func ResponseMiddleware(logger logur.LoggerFacade) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
+		if skipGenResponse(c.Request.URL.Path) {
+			return
+		}
 		c.Header("Content-Type", "application/json")
 		if len(c.Errors) > 0 {
 			c.JSON(http.StatusBadRequest, Response{
@@ -36,4 +40,16 @@ func ResponseMiddleware(logger logur.LoggerFacade) gin.HandlerFunc {
 
 func SetResponse(c *gin.Context, data interface{}) {
 	c.Set("data", data)
+}
+
+func skipGenResponse(path string) bool {
+	skipPath := []string{
+		"/swagger",
+	}
+	for _, s := range skipPath {
+		if strings.Contains(path, s) {
+			return true
+		}
+	}
+	return false
 }

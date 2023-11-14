@@ -293,7 +293,6 @@ export default {
             }).then(data => {
             sessionStorage.setItem('electionId', data.data.data.data.election_id)
             sessionStorage.setItem('hasElection', data.data.data.data.has_election)
-            console.log(sessionStorage.getItem('accessToken'))
           })
         })
           .catch(err => {

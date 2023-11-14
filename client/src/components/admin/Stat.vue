@@ -80,7 +80,11 @@ export default {
   name: 'AdminStat',
   components: {Footer, Header},
   async created () {
-    await AxiosInstance.get(RequestParams.host + RequestParams.path.stat + `/${sessionStorage.getItem('electionId')}`)
+    await AxiosInstance.get(RequestParams.host + RequestParams.path.stat + `/${sessionStorage.getItem('electionId')}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+      }
+    })
       .then((res) => {
         console.log(res.data.data.data)
         this.candidates = res.data.data.data

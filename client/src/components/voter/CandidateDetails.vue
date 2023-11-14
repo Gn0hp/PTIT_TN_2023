@@ -53,7 +53,11 @@ export default {
     const candidateId = this.$route.params.id
     this.candidate.name = this.$route.query.name
     console.log(candidateId)
-    await AxiosInstance.get(`${RequestParams.host}${RequestParams.path.get_post_by_candidate_id}?candidate_id=${candidateId}`)
+    await AxiosInstance.get(`${RequestParams.host}${RequestParams.path.get_post_by_candidate_id}?candidate_id=${candidateId}`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+      }
+    })
       .then(res => {
         console.log(res.data.data.data)
         this.candidate.posts = res.data.data.data

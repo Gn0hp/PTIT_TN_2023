@@ -54,11 +54,13 @@ func (i impl) FindByOption(c *gin.Context, option entities.Ballot) ([]*entities.
 	}
 	return result, nil
 }
-func (i impl) FindByVoterId(c *gin.Context, voterId uint64) (*entities.Ballot, error) {
+func (i impl) FindByVoterId(c *gin.Context, voterId, electionId uint64) (*entities.Ballot, error) {
 	var result *entities.Ballot
 	query := i.db.Gdb().
 		WithContext(c).
 		Model(&entities.Ballot{}).
+		Joins("JOIN election_results er ON er.id = ballots.result_id").
+		Where("er.id = ?", electionId).
 		Where("voter_id = ?", voterId)
 	err := query.Find(&result).Error
 	if err != nil {

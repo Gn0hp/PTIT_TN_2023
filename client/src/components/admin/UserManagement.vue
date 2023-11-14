@@ -126,7 +126,11 @@ export default {
       this.show2 = false
       this.selectedUser = null
       console.log('show voter token: ', sessionStorage.getItem('accessToken'))
-      await AxiosInstance.get(RequestParams.host + RequestParams.path.getVoterList)
+      await AxiosInstance.get(RequestParams.host + RequestParams.path.getVoterList, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+      })
         .then((res) => {
           console.log(res.data)
           this.voters = res.data.data.data
@@ -139,7 +143,11 @@ export default {
       // show candidate table
       this.show1 = false
       this.show2 = true
-      await AxiosInstance.get(RequestParams.host + RequestParams.path.getCandidateList)
+      await AxiosInstance.get(RequestParams.host + RequestParams.path.getCandidateList, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+      })
         .then((res) => {
           console.log(res.data)
           this.voters = res.data.data.data
@@ -152,7 +160,11 @@ export default {
       if (this.selectedType === 'voter') {
         console.log(`Go here with type of voter - ${this.selectedType} - ${this.selectedUser}`)
         // Axios patchVoter/:id
-        await AxiosInstance.patch(`${RequestParams.host}${RequestParams.path.patchVoter}/${this.selectedUser.id}`, this.selectedUser)
+        await AxiosInstance.patch(`${RequestParams.host}${RequestParams.path.patchVoter}/${this.selectedUser.id}`, this.selectedUser, {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+          }
+        })
           .then((res) => {
             console.log(res.data.data)
             this.showEditModal = false
@@ -164,7 +176,11 @@ export default {
       } else if (this.selectedType === 'candidate') {
         console.log(`Go here with type of candidate - ${this.selectedType} - ${this.selectedUser}`)
         // Axios patchCandidate/:id
-        await AxiosInstance.patch(`${RequestParams.host}${RequestParams.path.patchCandidate}/${this.selectedUser.id}`, this.selectedUser)
+        await AxiosInstance.patch(`${RequestParams.host}${RequestParams.path.patchCandidate}/${this.selectedUser.id}`, this.selectedUser, {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+          }
+        })
           .then((res) => {
             console.log(res.data.data)
             this.showEditModal = false

@@ -74,6 +74,8 @@ export default {
       // logout logic
       sessionStorage.removeItem('userGlobal')
       sessionStorage.removeItem('accessToken')
+      sessionStorage.removeItem('electionId')
+      sessionStorage.removeItem('hasElection')
       AxiosInstance.defaults.headers.common['Authorization'] = null
       this.$router.push('/')
     }

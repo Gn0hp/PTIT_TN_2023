@@ -25,7 +25,7 @@
 
           <button class="btn btn-primary ml-2" @click="userManagementDirect">User Management</button>
 
-          <button class="btn btn-primary ml-2" v-bind:class="{disabled: hasNoElection}" @click="statDirect">Election
+          <button class="btn btn-primary ml-2" @click="statDirect">Election
             Result Stat
           </button>
 
@@ -93,6 +93,9 @@ export default {
       return userManagement
     }
   },
+  created () {
+    this.hasNoElection = sessionStorage.getItem('hasElection') === 'false'
+  },
   components: {
     Footer,
     'Header': Header
@@ -130,7 +133,11 @@ export default {
     },
     async verifyUser () {
       try {
-        const res = await AxiosInstance.get(RequestParams.host + RequestParams.path.adminGetPendingUsers)
+        const res = await AxiosInstance.get(RequestParams.host + RequestParams.path.adminGetPendingUsers, {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+          }
+        })
         console.log(JSON.stringify(res.data.data.data))
         await this.$router.push({
           path: '/admin/verify',
@@ -152,7 +159,11 @@ export default {
         duration: RequestParams.default_elect_duration
       }
       console.log(postBody)
-      await AxiosInstance.post(RequestParams.host + RequestParams.path.close_election + `/${sessionStorage.getItem('electionId')}`, postBody)
+      await AxiosInstance.post(RequestParams.host + RequestParams.path.close_election + `/${sessionStorage.getItem('electionId')}`, postBody, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+      })
         .then(res => {
           console.log(res.data.data)
           const success = res.data.data.success
@@ -181,7 +192,11 @@ export default {
     },
     async closeElection () {
       const electionId = sessionStorage.getItem('electionId')
-      await AxiosInstance.post(`${RequestParams.host}${RequestParams.path.finish_election}/${electionId}`)
+      await AxiosInstance.post(`${RequestParams.host}${RequestParams.path.finish_election}/${electionId}`, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+      })
         .then(async res => {
           const success = res.data.data.success
           this.toast_title = success ? 'Successfully' : 'Failed'

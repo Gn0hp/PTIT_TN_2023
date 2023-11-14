@@ -66,11 +66,14 @@ export default {
   created () {
     this.items = JSON.parse(this.$route.query.users)
     console.log(this.items)
-    console.log('axios111 ', AxiosInstance.defaults.headers.common)
   },
   methods: {
     async verifyVoter (id) {
-      await AxiosInstance.post(RequestParams.host + RequestParams.path.verify_voter, {id: id})
+      await AxiosInstance.post(RequestParams.host + RequestParams.path.verify_voter, {id: id}, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+      })
         .then((response) => {
           console.log(response)
           this.items.voters = this.items.voters.filter((item) => item.id !== id)
@@ -84,7 +87,11 @@ export default {
       console.log(id)
     },
     async verifyCandidate (id) {
-      await AxiosInstance.post(RequestParams.host + RequestParams.path.verify_candidate, {id: id})
+      await AxiosInstance.post(RequestParams.host + RequestParams.path.verify_candidate, {id: id}, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`
+        }
+      })
         .then((response) => {
           console.log(response)
           this.items.candidates = this.items.candidates.filter((item) => item.id !== id)

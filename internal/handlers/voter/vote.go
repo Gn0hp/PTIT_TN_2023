@@ -34,7 +34,7 @@ func (h *Handler) Vote(c *gin.Context) {
 			Note:     time.Now().String(),
 		},
 	}
-	ballotExisted, _ := h.repo.Database().Ballot().FindByVoterId(c, req.VoterId)
+	ballotExisted, _ := h.repo.Database().Ballot().FindByVoterId(c, req.VoterId, req.ElectionId)
 	if ballotExisted.ID != 0 {
 		h.logger.Error(fmt.Sprintf("[Voter Handler - Vote] Voter already voted"))
 		_ = c.Error(fmt.Errorf("voter already voted"))
