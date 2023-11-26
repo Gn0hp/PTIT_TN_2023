@@ -7,9 +7,8 @@ import (
 	"PTIT_TN/pkg/utils"
 	"errors"
 	"fmt"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 func (h *Handler) CreateElection(c *gin.Context) {
@@ -80,6 +79,24 @@ func (h *Handler) PushBlockchain(c *gin.Context) {
 			NumCandidate: countElectionRoles, // get count RoleElect in db
 		},
 	})
+	nonce := GetNonceBlockchain(h)
+	// validate nonce
+	if nonce == nil {
+		h.logger.Error(fmt.Sprintf("[Election Handler] Get Nonce failed"))
+	}
+	// convert nonce from to uint64
+	nonceUint64, ok := nonce.(uint64)
+	if !ok {
+		h.logger.Error(fmt.Sprintf("[Election Handler] Convert Nonce failed"))
+	}
+	entity.ApiObjectId = nonceUint64
+	err = h.repo.Database().Election().UpdateById(c, entity)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+	// Update ApiObjectID
+
 	utils.SetResponse(c, map[string]interface{}{
 		"success": true,
 		"data":    entity,
@@ -151,4 +168,20 @@ func (h *Handler) createElectionRelated(c *gin.Context, election *entities.Elect
 		return err
 	}
 	return nil
+}
+
+func GetNonceBlockchain(h *Handler) interface{} {
+	resultChan, errChan := make(chan rabbitMQ.RabbitRequest), make(chan error)
+	h.mqService.Send(rabbitMQ.RabbitRequest{
+		Type: pkg.TxTypeNonce,
+		Data: nil,
+	})
+	go h.mqService.Receive(resultChan, errChan)
+	select {
+	case res := <-resultChan:
+		return res
+	case err := <-errChan:
+		h.logger.Error(fmt.Sprintf("[Election Handler] Get Nonce failed, detail: %v", err))
+		return nil
+	}
 }

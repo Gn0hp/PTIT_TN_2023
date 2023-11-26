@@ -92,3 +92,50 @@ func (h *Handler) StatByBallotId(c *gin.Context) {
 		"data":    resDetail,
 	})
 }
+
+func (h *Handler) GetBlockchainNonce(c *gin.Context) {
+	nonce := GetNonceBlockchainService(h)
+	utils.SetResponse(c, map[string]interface{}{
+		"success": true,
+		"data":    nonce,
+	})
+}
+
+//
+//func (h *Handler) GetElectionResult(c *gin.Context) {
+//	electionId, err := strconv.ParseUint(c.Query("id"), 10, 64)
+//	if err != nil {
+//		h.logger.Error(fmt.Sprintf("[Voter Handler - ViewCandidate] Invalid election_id failed, detail: %v", err))
+//		_ = c.Error(err)
+//		return
+//	}
+//	res := GetElectionResultService(h, int64(electionId))
+//	if res == nil {
+//		h.logger.Error(fmt.Sprintf("[Voter Handler - ViewCandidate] Get Election Result failed, detail: %v", err))
+//		_ = c.Error(err)
+//		return
+//	}
+//	utils.SetResponse(c, map[string]interface{}{
+//		"success": true,
+//		"data":    res,
+//	})
+//}
+//func (h *Handler) GetElectionToResutl(c *gin.Context) {
+//	electionId, err := strconv.ParseUint(c.Query("election_id"), 10, 64)
+//	candidateId, err := strconv.ParseUint(c.Query("candidate_id"), 10, 64)
+//	if err != nil {
+//		h.logger.Error(fmt.Sprintf("[Voter Handler - ViewCandidate] Invalid election_id failed, detail: %v", err))
+//		_ = c.Error(err)
+//		return
+//	}
+//	res := GetElectionToResultService(h, int64(electionId), int64(candidateId))
+//	if res == nil {
+//		h.logger.Error(fmt.Sprintf("[Voter Handler - ViewCandidate] Get Election Result failed, detail: %v", err))
+//		_ = c.Error(err)
+//		return
+//	}
+//	utils.SetResponse(c, map[string]interface{}{
+//		"success": true,
+//		"data":    res,
+//	})
+//}

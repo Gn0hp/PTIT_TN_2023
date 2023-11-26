@@ -35,15 +35,15 @@ func New(logger logur.LoggerFacade, database *db.GormDB, redisDb *redis.Client, 
 	}
 	// Middlewares
 	r.Use(
-		cors.New(config),        // CORS
-		auth.Middleware(logger), // Auth JWT
+		cors.New(config),                 // CORS
+		auth.Middleware(logger),          // Auth JWT
 		utils.ResponseMiddleware(logger)) // Response
 	//r.Use(web.RequestIdMiddleware())
 
 	repo := repositories.New(logger, database, redisDb)
 	userHandler := user.New(logger, repo)
-	adminHandler := admin.New(logger, repo)
-	candidateHandller := candidate.New(logger, repo)
+	adminHandler := admin.New(logger, repo, mqService)
+	candidateHandler := candidate.New(logger, repo)
 	voterHandler := voter.New(logger, repo, mqService)
 	electionHandler := election2.New(logger, repo, mqService)
 	electionRoleHandler := electionRoles.New(logger, repo)
@@ -74,6 +74,11 @@ func New(logger logur.LoggerFacade, database *db.GormDB, redisDb *redis.Client, 
 	adminUrl.GET("/stat-ballot-by-candidate/:candidate_id", adminHandler.StatBallotByCandidate)
 	adminUrl.GET("/stat-by-ballot/:ballot_id", adminHandler.StatByBallotId)
 
+	adminBlockchainUrl := adminUrl.Group("/blockchain")
+	adminBlockchainUrl.GET("/get-nonce", adminHandler.GetBlockchainNonce)
+	//adminBlockchainUrl.GET("/get-election-result", adminHandler.GetElectionResult)
+	//adminBlockchainUrl.GET("/get-election-to-result", adminHandler.GetElectionToResutl)
+
 	voterUrl := api.Group("/voter")
 	voterUrl.POST("/vote", voterHandler.Vote)
 	voterUrl.POST("/register-candidate", voterHandler.RegisterCandidate)
@@ -90,11 +95,11 @@ func New(logger logur.LoggerFacade, database *db.GormDB, redisDb *redis.Client, 
 	electionRoleUrl.GET("/find-by-election-id", electionRoleHandler.FindRolesByElectionId)
 
 	candidateUrl := api.Group("/candidate")
-	candidateUrl.GET("/get-posts-by-candidate-id", candidateHandller.FindAllPost)
-	candidateUrl.POST("/post-create", candidateHandller.CreatePost)
-	candidateUrl.PATCH("/post-update", candidateHandller.UpdatePost)
-	candidateUrl.DELETE("/post-delete", candidateHandller.DeletePost)
-	candidateUrl.GET("/watch-result/:id", candidateHandller.WatchResult)
+	candidateUrl.GET("/get-posts-by-candidate-id", candidateHandler.FindAllPost)
+	candidateUrl.POST("/post-create", candidateHandler.CreatePost)
+	candidateUrl.PATCH("/post-update", candidateHandler.UpdatePost)
+	candidateUrl.DELETE("/post-delete", candidateHandler.DeletePost)
+	candidateUrl.GET("/watch-result/:id", candidateHandler.WatchResult)
 
 	return r
 }

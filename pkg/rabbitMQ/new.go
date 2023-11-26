@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"
+	"log"
 	"logur.dev/logur"
 	"time"
 )
@@ -17,6 +18,7 @@ type RabbitRequest struct {
 type MqService interface {
 	GetConnection() *amqp091.Connection
 	Send(body RabbitRequest)
+	Receive(result chan<- RabbitRequest, errChan chan error) *RabbitRequest
 }
 type impl struct {
 	logger logur.LoggerFacade
@@ -69,6 +71,36 @@ func (i impl) Send(body RabbitRequest) {
 	}
 	i.logger.Info("[Rabbit MQ] Send success")
 
+}
+func (i impl) Receive(result chan<- RabbitRequest, errChan chan error) *RabbitRequest {
+	ch, err := i.conn.Channel()
+	if err != nil {
+		i.logger.Error(fmt.Sprintf("[Rabbit MQ Server] Error sending to service, detail: %v", err))
+		return nil
+	}
+	q, err := ch.QueueDeclare("rabbit_ptit_tn_prj_reverse", false, false, false, false, nil)
+	if err != nil {
+		logrus.Errorf("")
+	}
+	msgs, err := ch.Consume(q.Name, "", true, false, false, false, nil)
+	if err != nil {
+		i.logger.Error(fmt.Sprintf("[Rabbit MQ Server] Error sending to service, detail: %v", err))
+		return nil
+	}
+	for d := range msgs {
+		var body RabbitRequest
+		log.Printf("Received a message from blockchain: %s", d.Body)
+		err := json.Unmarshal(d.Body, &body)
+		if err != nil {
+			i.logger.Error(fmt.Sprintf("[Rabbit MQ Server] Error sending to service, detail: %v", err))
+			errChan <- err
+			continue
+		}
+		if body.Data != nil {
+			return &body
+		}
+	}
+	return nil
 }
 
 func (c Config) ConnectionString() string {

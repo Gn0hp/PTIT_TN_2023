@@ -3,6 +3,7 @@ package main
 import (
 	election_contract "PTIT_TN/contracts"
 	log2 "PTIT_TN/pkg/logger"
+	"PTIT_TN/pkg/rabbitMQ"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,9 +12,11 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/joho/godotenv"
 	"github.com/rabbitmq/amqp091-go"
+	"github.com/sirupsen/logrus"
 	"log"
 	"math/big"
 	"os"
+	"time"
 )
 
 type Request struct {
@@ -126,6 +129,39 @@ func main() {
 					continue
 				}
 				logger.Info(fmt.Sprintf("[Contract Instance] Vote success, detail: %v", res))
+			case TxTypeGetElectionResult:
+				electionIdJson, ok := jsonRes.Data.(map[string]interface{})
+				if !ok {
+					fmt.Println("Invalid json object")
+				}
+				electionId := int64(electionIdJson["election_id"].(float64))
+				res, err := contract.GetElectionResult(electionId)
+				if err != nil {
+					logger.Error(fmt.Sprintf("[Contract Instance] Get Election Result failed, detail: %v", err))
+					continue
+				}
+				Send(ch, rabbitMQ.RabbitRequest{
+					Type: TxTypeGetElectionResult,
+					Data: res,
+				}, ctx)
+				logger.Info(fmt.Sprintf("[Contract Instance] Get Election Result success, detail: %v", res))
+			case TxTypeElectionToResult:
+				dataJson, ok := jsonRes.Data.(map[string]interface{})
+				if !ok {
+					fmt.Println("Invalid json object")
+				}
+				electionId := int64(dataJson["election_id"].(float64))
+				choiceValue := int64(dataJson["candidate_id"].(float64))
+				res, err := contract.ElectionToResult(electionId, choiceValue)
+				if err != nil {
+					logger.Error(fmt.Sprintf("[Contract Instance] Get Election Result failed, detail: %v", err))
+					continue
+				}
+				Send(ch, rabbitMQ.RabbitRequest{
+					Type: TxTypeElectionToResult,
+					Data: res,
+				}, ctx)
+				logger.Info(fmt.Sprintf("[Contract Instance] Get Election Result success, detail: %v", res))
 			case TxTypeTransferOwnership:
 			case TxTypeRenounceOwnership:
 			case TxTypeElectionMapping:
@@ -134,8 +170,6 @@ func main() {
 					fmt.Printf("Error: %v", err)
 				}
 				fmt.Printf(fmt.Sprintf("Data Election Mapping: %v", res))
-			case TxTypeElectionToResult:
-			case TxTypeGetElectionResult:
 			case TxTypeIsVoted:
 			case TxTypeOwner:
 				fmt.Printf("Data Owner: %v", contract.Owner())
@@ -145,6 +179,10 @@ func main() {
 					logger.Error(fmt.Sprintf("[Contract Instance] Get Nonce failed, detail: %v", err))
 					continue
 				}
+				Send(ch, rabbitMQ.RabbitRequest{
+					Type: TxTypeNonce,
+					Data: nonce.String(),
+				}, ctx)
 				logger.Info(fmt.Sprintf("[Contract Instance] Get Nonce success, detail: %v", nonce))
 			case TxTypeSignature:
 				signature, err := contract.GetSignatureString()
@@ -175,4 +213,33 @@ func initClient(ctx context.Context, client *ethclient.Client) (*big.Int, *bind.
 		return nil, nil, err
 	}
 	return chainId, accountBinding, nil
+}
+
+func Send(ch *amqp091.Channel, body rabbitMQ.RabbitRequest, ctx context.Context) {
+	q, err := ch.QueueDeclare("rabbit_ptit_tn_prj_reverse", false, false, false, false, nil)
+	if err != nil {
+		logrus.Errorf("")
+	}
+	bodyBytes, _ := json.Marshal(body)
+	err = ch.PublishWithContext(ctx, "", q.Name, false, false, amqp091.Publishing{
+		Headers:         nil,
+		ContentType:     "text/json",
+		ContentEncoding: "",
+		DeliveryMode:    0,
+		Priority:        0,
+		CorrelationId:   "",
+		ReplyTo:         "",
+		Expiration:      "",
+		MessageId:       "",
+		Timestamp:       time.Time{},
+		Type:            "",
+		UserId:          "",
+		AppId:           "",
+		Body:            bodyBytes,
+	})
+	if err != nil {
+		logrus.Error(fmt.Sprintf("[Rabbit MQ Server] Error sending to service, detail: %v", err))
+		return
+	}
+	logrus.Info("[Rabbit MQ] Send success")
 }
